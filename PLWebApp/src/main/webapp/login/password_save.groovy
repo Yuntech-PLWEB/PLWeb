@@ -4,6 +4,17 @@ import java.text.DecimalFormat
 import net.tanesha.recaptcha.ReCaptchaImpl
 import net.tanesha.recaptcha.ReCaptchaResponse
 
+import javax.mail.*
+import java.util.Properties
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
 helper = new CommonHelper(request, response, session)
 
 def random_password(length) {
@@ -127,7 +138,7 @@ ${password}<br/>
 </body>
 </html>
 """
-
+/*
 			new AntBuilder().mail(
 				mailhost:	helper.adminMailHost,
 				mailport:	helper.adminMailPort,
@@ -140,6 +151,29 @@ ${password}<br/>
 				message:	content,
 				messagemimetype: 'text/html'
 			)
+*/
+
+			Properties props = new Properties();
+			props.setProperty("mail.smtp.host", helper.adminMailHost);
+			props.setProperty("mail.smtp.port", helper.adminMailPort);
+			props.setProperty("mail.debug","true");
+			props.setProperty("mail.smtp.auth","true");
+			props.setProperty("mail.smtp.starttls.enable","true");
+
+			Session _session = Session.getDefaultInstance(props,null)
+
+			MimeMessage message = new MimeMessage(_session);
+			message.setSubject(subject.toString());
+			message.setFrom(new InternetAddress(helper.adminSMTPUser));
+			message.setContent(content.toString(), "text/html;charset=UTF-8");
+
+			InternetAddress toAddress = new InternetAddress(email);
+			message.addRecipient(Message.RecipientType.TO, toAddress);
+
+			Transport transport = _session.getTransport("smtps");
+			transport.connect(helper.adminMailHost, helper.adminSMTPUser, helper.adminSMTPPassword);
+			transport.sendMessage(message, message.getAllRecipients());
+			transport.close();
 			
 			sql.executeInsert(_QUERY_ADD_RECOVERY, [uid, password, new Date().time])
 		}
