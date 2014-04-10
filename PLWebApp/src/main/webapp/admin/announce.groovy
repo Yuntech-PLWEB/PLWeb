@@ -45,7 +45,7 @@ html.html {
 					td (align: 'center') {
 						href_remove = "announce_drop.groovy?id=${row.ann_id}"
 						a (href: href_remove, onclick: "return confirm('Are you sure???');") {
-							img (src: 'icons/delete.png', border: 0)
+							img (src: '../icons/delete.png', border: 0)
 						}
 					}
 				}
