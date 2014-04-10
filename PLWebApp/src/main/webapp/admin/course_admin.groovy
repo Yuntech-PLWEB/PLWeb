@@ -99,13 +99,13 @@ html.html {
 					td (row.report_count)
 					td (align:'center') {
 						a(class: 'icon', href:href_member) {
-							img (src:'icons/group_edit.png', border:0)
+							img (src:'../icons/group_edit.png', border:0)
 						}
 					}
 					td (align:'center') {
 						href_update = "course_admin_update.groovy?course_id=${row.course_id}"
 						a (class: 'icon', href: href_update) {
-							img (src: 'icons/arrow_refresh.png', border: 0)
+							img (src: '../icons/arrow_refresh.png', border: 0)
 						}
 					}
 				}
