@@ -100,7 +100,7 @@ html.html {
 						td (align: 'center') {
 							href_remove = "user_admin_remove.groovy?user_id=${row.user_id}" 
 							a (href: href_remove, onclick: "return confirm('Are you sure???');") {
-								img (src: 'icons/user_delete.png', border: 0)
+								img (src: '../icons/user_delete.png', border: 0)
 							}
 						}
 					}
