@@ -11,7 +11,7 @@ email = helper.fetch('email')
 password = helper.fetch('password')
 
 def __QUERY_AUTH = '''
-	select USER_ID, EMAIL, NAME, TYPE, IS_ADMIN
+	select USER_ID, EMAIL, NAME, TYPE, IS_ADMIN, DEPARTMENT, ENROLLMENT
 	from ST_USER
 	where EMAIL=?
 	and (
@@ -61,6 +61,8 @@ if (row) {
 	helper.sess 'uname',	row.NAME
 	helper.sess 'utype',	row.TYPE
 	helper.sess 'is_admin',	'y'.equalsIgnoreCase(row.IS_ADMIN)
+	helper.sess 'department', row.DEPARTMENT
+	helper.sess 'enrollment', row.ENROLLMENT
 	
 	helper.sess 'login_url', response.encodeUrl('/login')
 	helper.sess 'logout_url', response.encodeUrl('/login/logout.groovy')

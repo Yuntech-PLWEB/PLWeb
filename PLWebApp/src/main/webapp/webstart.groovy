@@ -12,6 +12,8 @@ if (!session) {
 def uid	  = session.get('uid')
 def uname = session.get('uname')
 def utype = session.get('utype')
+def department = session.get('department')
+def enrollment = session.get('enrollment')
 
 if (!uid) {
 	response.sendError 403
@@ -117,7 +119,11 @@ props = [
  	"javaws.plweb.pluginpath"	    : "jEdit/workspace/jars",
  	"javaws.plweb.adimage"			: "http://${server_host}:${server_port}/ad-image/plweb-ad.png",
  	"javaws.plweb.adurl"			: "http://${server_host}:${server_port}/",
- 	
+	
+	"javaws.plweb.department"		: CH_encoding(department),
+	"javaws.plweb.enrollment"		: "${enrollment}",
+	"javaws.plweb.uname"			: CH_encoding(uname),
+	
  	"javaws.plweb.var.user_id"		: uid,
  	"javaws.plweb.var.user_name"	: uname,
  	"javaws.plweb.var.course_id"	: course_id,
@@ -283,5 +289,11 @@ xml.jnlp(spec: '1.6+', codebase: codebase) {
         argument('-XstartOnFirstThread')
         argument('-Xdock:name=PLWebStart')
 	}
+}
+
+def CH_encoding(str){
+	//byte[] _encoding = str.getBytes("UTF-8");
+	String _encoding = str.bytes.encodeBase64().toString();
+	return _encoding;
 }
 

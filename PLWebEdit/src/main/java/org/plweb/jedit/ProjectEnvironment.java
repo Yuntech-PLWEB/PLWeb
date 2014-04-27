@@ -2,12 +2,14 @@ package org.plweb.jedit;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import org.plweb.suite.common.xml.XProject;
 import org.plweb.suite.common.xml.XTask;
 import org.plweb.suite.common.xml.XmlFactory;
 
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
+import org.apache.commons.codec.binary.Base64;
 
 public class ProjectEnvironment {
 	private String diskRoot = System.getProperty("javaws.plweb.diskroot");
@@ -17,6 +19,10 @@ public class ProjectEnvironment {
 	private String requestUrl = System.getProperty("javaws.plweb.urlrequest");
 	private String explorer = System.getProperty("javaws.plweb.explorer");
 	private String shell = System.getProperty("javaws.plweb.shell");
+	
+	private String department = System.getProperty("javaws.plweb.department");
+	private String enrollment = System.getProperty("javaws.plweb.enrollment");
+	private String uname = System.getProperty("javaws.plweb.uname");
 
 	/**
 	 * Specify active project, instead of activeLesson
@@ -71,6 +77,34 @@ public class ProjectEnvironment {
 		}
 	}
 
+	public String getUname(){
+		//String _uname = new String(this.uname, "UTF-8");
+		//byte[] _uname = (this.uname).decodeBase64();
+		try {
+			Base64 base64 = new Base64();
+			String _uname = new String(base64.decode((this.uname).getBytes()), "UTF-8");
+			return _uname;
+		} catch(UnsupportedEncodingException e) {
+			return e.toString();
+		}
+	}
+	
+	public String getDepartment(){
+		//String _department = new String(this.department, "UTF-8");
+		//return _department;
+		try {
+			Base64 base64 = new Base64();
+			String _department = new String(base64.decode((this.department).getBytes()), "UTF-8");
+			return _department;
+		} catch(UnsupportedEncodingException e) {
+			return e.toString();
+		}
+	}
+	
+	public String getEnrollment(){
+		return enrollment;
+	}
+	
 	public String getLessonMode() {
 		return lessonMode;
 	}

@@ -8,6 +8,7 @@ import java.net.URI;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
@@ -26,13 +27,28 @@ public class BrowserUserInterface extends JPanel {
 		// JPanel panel = new JPanel();
 
 		JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				createBrowser(), createDisplayBox());
+				combineBrowserUserInfo(), createDisplayBox());
 		pane.setOneTouchExpandable(true);
-		pane.setDividerLocation(300);
+		pane.setDividerLocation(400);
 
 		add(pane);
 	}
 
+	private JComponent combineBrowserUserInfo(){
+		JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, createUserInfo(),createBrowser());
+		pane.setOneTouchExpandable(false);
+		pane.setDividerLocation(120);
+		return pane;
+	}
+	
+	private JComponent createUserInfo(){
+		JPanel info = new JPanel(new BorderLayout());
+		JLabel infoText = new JLabel("<html><h2>系所： " + env.getDepartment() + "<br>學號： " + env.getEnrollment() + "<br>姓名： " + env.getUname() + "</h2></html>");
+		info.add(infoText, BorderLayout.WEST);
+		
+		return info;
+	}
+	
 	private JComponent createBrowser() {
 		JWebBrowser browser = new JWebBrowser();
 		browser.setBarsVisible(false);
