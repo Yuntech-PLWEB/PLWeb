@@ -292,8 +292,13 @@ xml.jnlp(spec: '1.6+', codebase: codebase) {
 }
 
 def CH_encoding(str){
-	//byte[] _encoding = str.getBytes("UTF-8");
-	String _encoding = str.bytes.encodeBase64().toString();
-	return _encoding;
+        String _encoding;
+        if(str != null)
+                _encoding = str.bytes.encodeBase64().toString();
+        else {
+                String _str = "null";
+                _encoding = _str.bytes.encodeBase64().toString();
+        }
+        return _encoding;
 }
 
