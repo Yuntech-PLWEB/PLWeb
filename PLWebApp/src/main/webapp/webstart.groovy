@@ -24,6 +24,11 @@ def course_id = request.getParameter('course_id')
 def class_id  = request.getParameter('class_id')
 def lesson_id = request.getParameter('lesson_id')
 def mode      = request.getParameter('mode')
+def isExam    = false
+
+if(request.getParameterMap().containsKey("isExam")){
+  isExam = true
+}
 
 def cdn = helper.fetch('cdn')!=null
 
@@ -123,6 +128,7 @@ props = [
 	"javaws.plweb.department"		: CH_encoding(department),
 	"javaws.plweb.enrollment"		: "${enrollment}",
 	"javaws.plweb.uname"			: CH_encoding(uname),
+	"javaws.plweb.isExam"			: isExam,
 	
  	"javaws.plweb.var.user_id"		: uid,
  	"javaws.plweb.var.user_name"	: uname,

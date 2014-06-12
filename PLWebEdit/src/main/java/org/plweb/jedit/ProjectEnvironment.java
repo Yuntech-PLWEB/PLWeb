@@ -23,6 +23,7 @@ public class ProjectEnvironment {
 	private String department = System.getProperty("javaws.plweb.department");
 	private String enrollment = System.getProperty("javaws.plweb.enrollment");
 	private String uname = System.getProperty("javaws.plweb.uname");
+	private String isExam = System.getProperty("javaws.plweb.isExam");
 
 	/**
 	 * Specify active project, instead of activeLesson
@@ -191,5 +192,9 @@ public class ProjectEnvironment {
 
 	public void setShell(String shell) {
 		this.shell = shell;
+	}
+	
+	public String getIsExam(){
+		return isExam;
 	}
 }

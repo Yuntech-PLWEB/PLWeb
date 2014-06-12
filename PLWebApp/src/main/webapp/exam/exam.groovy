@@ -116,7 +116,7 @@ html.html {
 						sql.eachRow(query2, [classid]) {
 							row->
 							p {
-								editor_url = helper.make_url('webstart.groovy', [mode: 'student', course_id: row.COURSE_ID, lesson_id: row.LESSON_ID, class_id: classid], true)
+								editor_url = helper.make_url('webstart.groovy', [mode: 'student', course_id: row.COURSE_ID, lesson_id: row.LESSON_ID, class_id: classid, isExam: true], true)
 								span("${row.TITLE} (${row.COURSE_TITLE})")
 								a (href: editor_url, style: 'font-size:1.25em;font-weight:bold', "啟動測驗")
 							}

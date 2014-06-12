@@ -26,4 +26,8 @@ jar {
 
 defaultTasks 'jar'
 
+tasks.withType(Compile) {
+    options.encoding = 'UTF-8'
+}
+
 

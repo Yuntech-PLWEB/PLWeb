@@ -77,7 +77,11 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		tb1.add(createButton("上一題", "control_rewind.png", "task.previous", false));
 		tb1.add(comboTask = createComboBox(tasks, "task.select"));
 		tb1.add(createButton("下一題", "control_fastforward.png", "task.next", false));
-
+		if(env.getIsExam().equals("true")){
+			tb1.addSeparator();
+			tb1.add(createButton("提交此題", "submit.png", "task.next", false));
+		}
+		
 		JToolBar tb2 = new JToolBar();
 		tb2.setFloatable(false);
 
