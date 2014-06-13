@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
+import javax.swing.JDialog;
 
 import org.gjt.sp.jedit.Buffer;
 import org.gjt.sp.jedit.GUIUtilities;
@@ -51,6 +52,9 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	private MessageConsoleInterface console = MessageConsole.getInstance();
 
 	private BufferChangeListener bcl = BufferChangeListener.getInstance();
+	
+	private JToolBar tb1;
+	private JButton submit;
 
 	public CompilerUserInterface() {
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 3, 3));
@@ -72,14 +76,15 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			modes = new String[] { env.getLessonMode() };
 		}
 
-		JToolBar tb1 = new JToolBar();
+		tb1 = new JToolBar();
 		tb1.setFloatable(false);
 		tb1.add(createButton("上一題", "control_rewind.png", "task.previous", false));
 		tb1.add(comboTask = createComboBox(tasks, "task.select"));
 		tb1.add(createButton("下一題", "control_fastforward.png", "task.next", false));
 		if(env.getIsExam().equals("true")){
 			tb1.addSeparator();
-			tb1.add(createButton("提交此題", "submit.png", "task.next", false));
+			submit = createButton("提交此題", "submit.png", "task.submit", false);
+			tb1.add(submit);
 		}
 		
 		JToolBar tb2 = new JToolBar();
@@ -205,6 +210,18 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			new FrameProjectEditor(env.getActiveProject());
 		} else if (cmd.equals("html.edit")) {
 			html();
+		} else if (cmd.equals("task.submit")) {
+			int dialogResult = JOptionPane.showConfirmDialog(null, "若提交後則無法再修改程式碼，確認提交？", "Submit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			if(dialogResult == JOptionPane.YES_OPTION){
+				/* int idx = comboTask.getSelectedIndex();
+				if (idx + 1 < comboTask.getItemCount()) {
+					comboTask.setSelectedIndex(idx + 1);
+				}
+				reloadTask();*/
+				tb1.remove(submit);
+				tb1.revalidate();
+				tb1.repaint();
+			}	
 		} else if (cmd.equals("task.reset")) {
 			//從 .part 載入
 			//System.out.println("task.reset!!");
