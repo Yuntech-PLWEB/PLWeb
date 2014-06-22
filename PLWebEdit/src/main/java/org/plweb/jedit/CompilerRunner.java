@@ -58,7 +58,7 @@ public class CompilerRunner extends Thread {
 	private String keystroke = "";
 
 	private TestResult testResult;
-
+	
 	final private Color COLOR_OK = new Color(0, 180, 0);
 	final private Color COLOR_ERROR = new Color(255, 0, 0);
 
@@ -136,6 +136,7 @@ public class CompilerRunner extends Thread {
 		// createPLWebEnvFile();
 
 		XProject project = env.getActiveProject();
+		String language = project.getProperty("language");
 
 		File rootPath = new File(project.getRootPath());
 
@@ -148,9 +149,34 @@ public class CompilerRunner extends Thread {
 
 		try {
 			if (task != null) {
-
+			
+				
+				if(env.getLessonMode().equalsIgnoreCase("author")){
+					File exam = new File(project.getRootPath() + "\\" + task.getProperty("ExName") + ".exam");
+					if(exam.exists()) {
+						ProgramTester testRobot = ProgramTester.getInstance(project.getRootPath());
+						testRobot.compiler(language, task.getProperty("ExName"));
+			
+						ArrayList<String> param = testRobot.readFile(task.getProperty("ExName") + ".exam");
+						String result = new String();
+						int paramNum = 1;
+						if(param.size() == 0){
+							result += testRobot.executeSrc(language, "", task.getProperty("ExName"));
+							result += "#####\n";
+						} else {
+							for(int i = 0; i < param.size(); i++){
+								result += testRobot.executeSrc(language, param.get(i), task.getProperty("ExName"));
+								result += "#####\n";
+							}
+							paramNum = param.size();
+						}
+						task.setProperty("paramNum", Integer.toString(paramNum));
+						testRobot.printer(task.getProperty("ExName") + ".cond2", result);
+						console.println(result);
+					} 				
+				}
+			
 				String status = "undefined";
-
 				for (XCommand command : task.getCommands()) {
 					if (!command.getMode().equalsIgnoreCase(mode)) {
 						continue;
