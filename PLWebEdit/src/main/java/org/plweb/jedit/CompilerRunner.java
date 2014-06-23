@@ -149,17 +149,17 @@ public class CompilerRunner extends Thread {
 
 		try {
 			if (task != null) {
-			
-				
+
 				if(env.getLessonMode().equalsIgnoreCase("author")){
 					File exam = new File(project.getRootPath() + "\\" + task.getProperty("ExName") + ".exam");
 					if(exam.exists()) {
+						project.setProperty("hasExamFile", "true");
 						ProgramTester testRobot = ProgramTester.getInstance(project.getRootPath());
 						testRobot.compiler(language, task.getProperty("ExName"));
 			
 						ArrayList<String> param = testRobot.readFile(task.getProperty("ExName") + ".exam");
 						String result = new String();
-						int paramNum = 1;
+						int paramNum = 1;				
 						if(param.size() == 0){
 							result += testRobot.executeSrc(language, "", task.getProperty("ExName"));
 							result += "#####\n";
@@ -173,7 +173,7 @@ public class CompilerRunner extends Thread {
 						task.setProperty("paramNum", Integer.toString(paramNum));
 						testRobot.printer(task.getProperty("ExName") + ".cond2", result);
 						console.println(result);
-					} 				
+					}
 				}
 			
 				String status = "undefined";

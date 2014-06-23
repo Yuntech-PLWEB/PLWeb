@@ -277,6 +277,28 @@ and LESSON_ID=?
 
 		println "(server response) Saved!!!"
 		break;
+	
+	case 'saveGradeSetting':
+		//course_id;
+		//lesson_id;
+		gradeSetting = request.getParameter('gradeSetting')
+		
+		q1 = """ SELECT COUNT(*) as cc FROM GRADE_SETTING WHERE COURSE_ID=? AND LESSON_ID=? """
+		q2 = """ INSERT INTO GRADE_SETTING(COURSE_ID, LESSON_ID, GRADE_SET) VALUES(?, ?, ?)"""
+		q3 = """ UPDATE GRADE_SETTING SET GRADE_SET=? WHERE COURSE_ID=? AND LESSON_ID=?"""
+		
+		try {
+			cc = sql.firstRow(q1, [course_id, lesson_id]).cc
+			if(cc == 0) {
+				sql.executeInsert(q2, [course_id, lesson_id, gradeSetting])
+			} else {
+				sql.executeUpdate(q3, [gradeSetting, course_id, lesson_id])
+			}
+		} catch(e) {
+			println e.message
+		}
+		
+		break;
 }
 
 sql.close()

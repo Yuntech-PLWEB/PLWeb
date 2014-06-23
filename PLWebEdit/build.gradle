@@ -27,6 +27,7 @@ dependencies {
     compile files ('../PLWebStart/lib/DJNativeSwing.jar')
     compile files ('../PLWebStart/lib/DJNativeSwing-SWT.jar')
 	compile files ('../PLWebStart/lib/commons-codec-1.9.jar')
+	compile files ('../PLWebStart/lib/json-simple-1.1.1.jar')
 }
 
 def defaultEncoding = 'UTF-8'

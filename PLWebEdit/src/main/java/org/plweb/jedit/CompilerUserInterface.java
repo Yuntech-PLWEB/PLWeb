@@ -12,6 +12,9 @@ import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import org.json.simple.JSONValue;
+import org.json.simple.JSONObject;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -141,6 +144,10 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		 */
 		refreshTaskComboBox();
 		reloadTask();
+		// default the project doesn't have exam file.
+		XProject project = env.getActiveProject();
+		if(project.getPropertyEx("hasExamFile") == null)
+			project.setProperty("hasExamFile", "false");
 	}
 
 	// protected void finalize() throws Throwable {
@@ -268,9 +275,10 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			ex.printStackTrace();
 		}
 	}
-
+	
 	private void saveProject() {
 		new Thread(new ProjectUploader()).start();
+		new Thread(new SaveGradeSet()).start();
 	}
 
 	/**
@@ -703,6 +711,70 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		htmlBuffer.insert(0, htmlContent);
 		htmlFrame.setVisible(false);*/
 	}
+	
+	//////////////////////////////////////
+	//////////////////////////////////////
+	//////////////////////////////////////
+	//////////////////////////////////////
+	@SuppressWarnings("unchecked")
+	/*private void saveGradeSetting(){
+		XProject project = env.getActiveProject();
+		if(project.getProperty("hasExamFile").equalsIgnoreCase("true")){
+			List<XTask> tasks = project.getTasks();
+			JSONObject obj = new JSONObject();
+			Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+			
+			for(int i = 0; i < tasks.size(); i++){
+				if(tasks.get(i).getPropertyEx("paramNum") != null){
+					for(int j = 0; j < Integer.parseInt(tasks.get(i).getProperty("paramNum")); j++){
+						map.put(j + 1, 0);
+					}
+				} else {
+					map.put(0, 0);
+				}
+				obj.put(i + 1, new HashMap<Integer, Integer>(map));
+				map.clear();
+			}
+			
+			mm.saveGradeSetting(obj.toString());
+		}
+	}*/
+	
+	class SaveGradeSet implements Runnable {
+		@SuppressWarnings("unchecked")
+		public void run() {
+			XProject project = env.getActiveProject();
+			if(project.getProperty("hasExamFile").equalsIgnoreCase("true")){
+				List<XTask> tasks = project.getTasks();
+				JSONObject obj = new JSONObject();
+				Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+				
+				for(int i = 0; i < tasks.size(); i++){
+					if(tasks.get(i).getPropertyEx("paramNum") != null){
+						for(int j = 0; j < Integer.parseInt(tasks.get(i).getProperty("paramNum")); j++){
+							map.put(j + 1, 0);
+						}
+					} else {
+						map.put(0, 0);
+					}
+					obj.put(i + 1, new HashMap<Integer, Integer>(map));
+					map.clear();
+				}
+				
+				Thread thread = mm.saveGradeSetting(obj.toString());
+				while (thread.isAlive()) {
+					console.print(".");
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException ex) {
+
+					}
+				}
+			}
+				
+		}
+	}
+	
 
 	class ProjectUploader implements Runnable {
 

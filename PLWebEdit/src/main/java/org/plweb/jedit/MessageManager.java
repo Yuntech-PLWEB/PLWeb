@@ -194,7 +194,7 @@ public class MessageManager {
 
 		// new Thread(new ServerRequestRunner("save_report_v2", props)).start();
 	}
-
+	
 	/**
 	 * Call service.request/save_snapshot_v2.groovy
 	 * 
@@ -250,6 +250,16 @@ public class MessageManager {
 
 		Thread result = new Thread(
 				new ServerRequestRunner("saveProject", props));
+		result.start();
+		return result;
+	}
+	
+	public Thread saveGradeSetting(Object gradeSetting){
+		Properties props = new Properties();
+		props.setProperty("gradeSetting", String.valueOf(gradeSetting));
+		
+		Thread result = new Thread(new ServerRequestRunner("saveGradeSetting", props));
+		
 		result.start();
 		return result;
 	}
