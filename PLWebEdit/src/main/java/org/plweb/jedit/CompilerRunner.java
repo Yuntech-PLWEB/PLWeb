@@ -136,7 +136,7 @@ public class CompilerRunner extends Thread {
 		// createPLWebEnvFile();
 
 		XProject project = env.getActiveProject();
-		String language = project.getProperty("language");
+		String language = new String();
 
 		File rootPath = new File(project.getRootPath());
 
@@ -153,6 +153,12 @@ public class CompilerRunner extends Thread {
 				if(env.getLessonMode().equalsIgnoreCase("author")){
 					File exam = new File(project.getRootPath() + "\\" + task.getProperty("ExName") + ".exam");
 					if(exam.exists()) {
+					
+						if(project.getPropertyEx("language") != null)
+							language = project.getProperty("language");
+						else
+							console.println("Please set the language into Project property.");
+							
 						project.setProperty("hasExamFile", "true");
 						ProgramTester testRobot = ProgramTester.getInstance(project.getRootPath());
 						testRobot.compiler(language, task.getProperty("ExName"));

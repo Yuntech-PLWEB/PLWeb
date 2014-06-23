@@ -712,34 +712,6 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		htmlFrame.setVisible(false);*/
 	}
 	
-	//////////////////////////////////////
-	//////////////////////////////////////
-	//////////////////////////////////////
-	//////////////////////////////////////
-	@SuppressWarnings("unchecked")
-	/*private void saveGradeSetting(){
-		XProject project = env.getActiveProject();
-		if(project.getProperty("hasExamFile").equalsIgnoreCase("true")){
-			List<XTask> tasks = project.getTasks();
-			JSONObject obj = new JSONObject();
-			Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-			
-			for(int i = 0; i < tasks.size(); i++){
-				if(tasks.get(i).getPropertyEx("paramNum") != null){
-					for(int j = 0; j < Integer.parseInt(tasks.get(i).getProperty("paramNum")); j++){
-						map.put(j + 1, 0);
-					}
-				} else {
-					map.put(0, 0);
-				}
-				obj.put(i + 1, new HashMap<Integer, Integer>(map));
-				map.clear();
-			}
-			
-			mm.saveGradeSetting(obj.toString());
-		}
-	}*/
-	
 	class SaveGradeSet implements Runnable {
 		@SuppressWarnings("unchecked")
 		public void run() {
