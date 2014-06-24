@@ -16,6 +16,12 @@ import java.util.List;
 import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -148,18 +154,30 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		XProject project = env.getActiveProject();
 		if(project.getPropertyEx("hasExamFile") == null)
 			project.setProperty("hasExamFile", "false");
+			
+		// clear system copy clipboard
+		clearCopyClipBoard();
 	}
-
-	// protected void finalize() throws Throwable {
-	// // send 'end' message for before task
-	// XTask beforeTask = env.getActiveTask();
-	//
-	// if (beforeTask != null) {
-	// mm.saveMessage(beforeTask.getId(), "end", "", "", "", 0, 0, 0);
-	// }
-	//
-	// super.finalize();
-	// }
+	// clear system copy clipboard
+	private void clearCopyClipBoard(){
+		try {
+			java.awt.datatransfer.Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+			clipboard.setContents(new Transferable() {
+				public DataFlavor[] getTransferDataFlavors() {
+					return new DataFlavor[0];
+				}
+				public boolean isDataFlavorSupported(DataFlavor flavor) {
+					return false;
+				}
+				public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
+					throw new UnsupportedFlavorException(flavor);
+				}
+			}, null);
+		} catch (IllegalStateException e){
+		}
+		
+	}
+	
 
 	private JComponent createConsoleTextPane() {
 		JTextPane textPaneConsole = new JTextPane();
