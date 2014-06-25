@@ -41,6 +41,12 @@ public class ServerRequest {
 	private Properties props;
 
 	private String response;
+	
+	private Boolean urlFlag = false;
+	
+	public void setGradeFlag(){
+		urlFlag = true;
+	}
 
 	public ServerRequest(String action, Properties props) {
 		this.action = action;
@@ -65,7 +71,13 @@ public class ServerRequest {
 			System.err.println(data.toString());
 
 			// Send data
-			URLConnection conn = new URL(env.getRequestUrl()).openConnection();
+			String url;
+			if(urlFlag)
+				url = env.getUrlGrade();
+			else
+				url = env.getRequestUrl();
+			URLConnection conn = new URL(url).openConnection();
+			urlFlag = false;
 
 			conn.setDoOutput(true);
 			Writer w = new OutputStreamWriter(conn.getOutputStream());

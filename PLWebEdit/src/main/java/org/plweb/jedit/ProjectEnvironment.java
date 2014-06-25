@@ -19,11 +19,17 @@ public class ProjectEnvironment {
 	private String requestUrl = System.getProperty("javaws.plweb.urlrequest");
 	private String explorer = System.getProperty("javaws.plweb.explorer");
 	private String shell = System.getProperty("javaws.plweb.shell");
+	private String urlgrade = System.getProperty("javaws.plweb.urlgrade");
 	
 	private String department = System.getProperty("javaws.plweb.department");
 	private String enrollment = System.getProperty("javaws.plweb.enrollment");
 	private String uname = System.getProperty("javaws.plweb.uname");
 	private String isExam = System.getProperty("javaws.plweb.isExam");
+	
+	private String userId = System.getProperty("javaws.plweb.var.user_id");
+	private String courseId = System.getProperty("javaws.plweb.var.course_id");
+	private String lessonId = System.getProperty("javaws.plweb.var.lesson_id");
+	private String classId = System.getProperty("javaws.plweb.var.class_id");
 
 	/**
 	 * Specify active project, instead of activeLesson
@@ -178,6 +184,10 @@ public class ProjectEnvironment {
 		return shell;
 	}
 
+	public String getUrlGrade(){
+		return urlgrade;
+	}
+	
 	public String[] getShell(String command) {
 		String[] result;
 		String[] args = shell.split(" ");
@@ -196,5 +206,21 @@ public class ProjectEnvironment {
 	
 	public String getIsExam(){
 		return isExam;
+	}
+
+	public String getUserId(){
+		return userId;
+	}
+	
+	public String getCourseId(){
+		return courseId;
+	}
+	
+	public String getLessonId(){
+		return lessonId;
+	}
+	
+	public String getClassId(){
+		return classId;
 	}
 }

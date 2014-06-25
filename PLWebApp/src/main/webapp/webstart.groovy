@@ -109,12 +109,14 @@ sql.close()
 
 lesson_xml  = "http://${server_host}:${server_port}/ServerLesson.groovy?s=${session_id}&t=${ticket_no}"
 request_url = "http://${server_host}:${server_port}/ServerRequest.groovy?s=${session_id}&t=${ticket_no}"
+gradeUrl = "http://${server_host}:${server_port}/GradeSetting.groovy"
 
 props = [
  	"javaws.plweb.urlpackage"	    : "${codebase}core/jedit-package-4.5.zip",
  	"javaws.plweb.urlpackage_asc"	: new Date().time,
     "javaws.plweb.urllesson"	    : "${lesson_xml}",
  	"javaws.plweb.urlrequest"	    : "${request_url}",
+	"javaws.plweb.urlgrade"			: "${gradeUrl}",
  	"javaws.plweb.lessonpath"	    : "${uid}/${class_id}/${course_name}/${lesson_id}",
  	"javaws.plweb.lessonfile"	    : "lesson${lesson_id}.xml",
  	"javaws.plweb.lessonxml"	    : "${uid}/${class_id}/${course_name}/lesson${lesson_id}.xml",

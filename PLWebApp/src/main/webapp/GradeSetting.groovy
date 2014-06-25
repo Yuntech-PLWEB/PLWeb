@@ -1,6 +1,12 @@
 import javax.naming.InitialContext
 import groovy.sql.Sql
 import org.plweb.webapp.helper.CommonHelper
+import java.util.HashMap
+import java.util.Map
+import org.json.simple.JSONValue
+import org.json.simple.JSONObject
+import org.json.simple.parser.JSONParser
+import org.json.simple.parser.ParseException
 
 helper = new CommonHelper(request, response, session)
 
@@ -14,19 +20,28 @@ sql = new Sql(helper.connection)
 
 switch(action){
 	case 'init':
-	
-		checkSql = """ SELECT GRADE as cc FROM ST_GRADE WHERE CLASS_ID=? AND COURSE_ID=? AND LESSON_ID=? AND USER_ID=? """
+		
+		checkSql = """ SELECT GRADE FROM ST_GRADE WHERE CLASS_ID=? AND COURSE_ID=? AND LESSON_ID=? AND USER_ID=? """
 		try {
-			cc = sql.firstRow(checkSql, [classId, courseId, lessonId, userId]).cc
-			if(cc != null){
-				print cc
+			row = sql.firstRow(checkSql, [classId, courseId, lessonId, userId])
+			if(!row.equals(null)){
+				print row.grade
 			} else {
-				selectSql = """ SELECT GRADE_SET as set FROM GRADE_SETTING WHERE COURSE_ID=? AND LESSON_ID=? """
-				gradeSet = sql.firstRow(selectSql, [courseId, lessonId]).set
+				selectSql = """ SELECT GRADE_SET FROM GRADE_SETTING WHERE COURSE_ID=? AND LESSON_ID=? """
+				gradeSet = sql.firstRow(selectSql, [courseId, lessonId]).grade_set
 				
-				JSONParser parse = new JSONParser()
-				JSONObject gradeSet = (JSONObject) parser.parse(gradeSet)
+				JSONParser parser = new JSONParser()
+				JSONObject _gradeSet = (JSONObject) parser.parse(gradeSet)
 				
+				JSONObject _return = new JSONObject();
+				for(i = 0; i < _gradeSet.size(); i++){
+					_return.put(i + 1, false)
+				}
+				
+				insertSql = """ INSERT INTO ST_GRADE VALUES(?, ?, ?, ?, ?) """
+				sql.executeInsert(insertSql, [classId, courseId, lessonId, userId, _return.toString()])
+				
+				print _return.toString()
 			}
 		} catch(e){
 
@@ -36,3 +51,4 @@ switch(action){
 		break;
 	
 }
+sql.close()

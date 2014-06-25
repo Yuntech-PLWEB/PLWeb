@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.List;
 import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
@@ -63,7 +65,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	private BufferChangeListener bcl = BufferChangeListener.getInstance();
 	
 	private JToolBar tb1;
-	private JButton submit;
+	private Boolean isSubmit[];
+	private JToolBar tb2ForSubmit;
 
 	public CompilerUserInterface() {
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 3, 3));
@@ -90,11 +93,6 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		tb1.add(createButton("上一題", "control_rewind.png", "task.previous", false));
 		tb1.add(comboTask = createComboBox(tasks, "task.select"));
 		tb1.add(createButton("下一題", "control_fastforward.png", "task.next", false));
-		if(env.getIsExam().equals("true")){
-			tb1.addSeparator();
-			submit = createButton("提交此題", "submit.png", "task.submit", false);
-			tb1.add(submit);
-		}
 		
 		JToolBar tb2 = new JToolBar();
 		tb2.setFloatable(false);
@@ -144,12 +142,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		// } catch (InterruptedException ex) {
 		// ex.printStackTrace();
 		// }
-
-		/*
-		 * First Time reload
-		 */
-		refreshTaskComboBox();
-		reloadTask();
+		
 		// default the project doesn't have exam file.
 		XProject project = env.getActiveProject();
 		if(project.getPropertyEx("hasExamFile") == null)
@@ -157,6 +150,34 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			
 		// clear system copy clipboard
 		clearCopyClipBoard();
+		
+		// check project if has Exam file & if Exam mode
+		if(env.getIsExam().equals("true") && project.getPropertyEx("hasExamFile").equals("true")){
+			tb2ForSubmit = new JToolBar();
+			tb2ForSubmit.setFloatable(false);
+			tb2ForSubmit.addSeparator();
+			tb2ForSubmit.add(createButton("提交此題", "submit.png", "task.submit", false));
+			try {
+				//check whitch task has submited.
+				String gradeString = mm.getGrade(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId());
+				JSONParser parser = new JSONParser();
+				JSONObject submit = (JSONObject) parser.parse(gradeString);
+				isSubmit = new Boolean[submit.size()];
+				for(int i = 0; i < submit.size(); i++){
+					if((submit.get(String.valueOf(i + 1)).toString()).equals("false"))
+						isSubmit[i] = Boolean.valueOf(submit.get(String.valueOf(i + 1)).toString());
+					else
+						isSubmit[i] = true;
+				}
+			} catch(ParseException e) {
+			}
+		}
+		
+		/*
+		 * First Time reload
+		 */
+		refreshTaskComboBox();
+		reloadTask();
 	}
 	// clear system copy clipboard
 	private void clearCopyClipBoard(){
@@ -238,14 +259,11 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		} else if (cmd.equals("task.submit")) {
 			int dialogResult = JOptionPane.showConfirmDialog(null, "若提交後則無法再修改程式碼，確認提交？", "Submit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 			if(dialogResult == JOptionPane.YES_OPTION){
-				/* int idx = comboTask.getSelectedIndex();
-				if (idx + 1 < comboTask.getItemCount()) {
-					comboTask.setSelectedIndex(idx + 1);
-				}
-				reloadTask();*/
-				tb1.remove(submit);
+				/*
+				tb1.remove(tb2ForSubmit);
 				tb1.revalidate();
 				tb1.repaint();
+				*/
 			}	
 		} else if (cmd.equals("task.reset")) {
 			//從 .part 載入
@@ -537,7 +555,16 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		mainBuffer.addBufferListener(bcl);
 
 		console.switchTo(idx);
-
+		
+		if(env.getIsExam().equals("true") && project.getPropertyEx("hasExamFile").equals("true")){
+			tb1.remove(tb2ForSubmit);
+			tb1.revalidate();
+			tb1.repaint();
+			if(isSubmit[idx].equals(false)){
+				tb1.add(tb2ForSubmit);
+			}
+		}
+		console.println("new IDX:" + idx);
 		// mm.saveMessage(task.getId(), "start", "", "");
 	}
 

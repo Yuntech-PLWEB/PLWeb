@@ -59,6 +59,9 @@ dependencies {
 
     // PLWeb Libraries
     runtime files ('../PLWebXML/build/libs/plwebxml-1.0.jar')
+	
+	// JSON 20140625
+	runtime files ('../PLWebStart/lib/json-simple-1.1.1.jar')
 }
 
 def defaultEncoding = 'UTF-8'

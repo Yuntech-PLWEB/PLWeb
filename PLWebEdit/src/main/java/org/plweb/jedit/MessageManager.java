@@ -194,7 +194,7 @@ public class MessageManager {
 
 		// new Thread(new ServerRequestRunner("save_report_v2", props)).start();
 	}
-	
+
 	/**
 	 * Call service.request/save_snapshot_v2.groovy
 	 * 
@@ -263,4 +263,28 @@ public class MessageManager {
 		result.start();
 		return result;
 	}
+	
+	public String getGrade(Object classId, Object courseId, Object lessonId, Object userId){
+		Properties props = new Properties();
+		
+		props.setProperty("classId", String.valueOf(classId));
+		props.setProperty("courseId", String.valueOf(courseId));
+		props.setProperty("lessonId", String.valueOf(lessonId));
+		props.setProperty("userId", String.valueOf(userId));
+		
+		ServerRequest request = new ServerRequest("init", props);
+		request.setGradeFlag();
+		queue1.offer(request);
+		
+		while(request.isFinished() == false){
+			try {
+					Thread.sleep(500);
+			} catch (InterruptedException ex) {
+
+			}
+		}
+		
+		return request.getResponse();	
+	}
+	
 }
