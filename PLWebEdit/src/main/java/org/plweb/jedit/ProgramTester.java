@@ -81,7 +81,7 @@ public class ProgramTester {
 	}
 	
 	// read exam file for get parameter
-	public ArrayList<String> readFile(String src) throws IOException{
+	public ArrayList<String> readFile(String src, String flag) throws IOException{
 		BufferedReader br = new BufferedReader(new FileReader(this.rootPath + "\\" + src));
 		try {
 			StringBuilder sb = new StringBuilder();
@@ -89,14 +89,14 @@ public class ProgramTester {
 			ArrayList<String> parameter = new ArrayList<String>();
 			
 			while(line != null){
-				if(line.equals("#") || line == null){
+				if(line.equals(flag) || line == null){
 					parameter.add(sb.toString());
 					sb.setLength(0);
 					line = br.readLine();
 					continue;
 				}
 				sb.append(line);
-				sb.append("\n ");
+				sb.append("\n");
 				line = br.readLine();
 			}
 			return parameter;

@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
+import java.util.ArrayList;
 import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -67,6 +68,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	private JToolBar tb1;
 	private Boolean isSubmit[];
 	private JToolBar tb2ForSubmit;
+	
+	private JSONObject _stuGrade;
 
 	public CompilerUserInterface() {
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 3, 3));
@@ -161,11 +164,12 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 				//check whitch task has submited.
 				String gradeString = mm.getGrade(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId());
 				JSONParser parser = new JSONParser();
-				JSONObject submit = (JSONObject) parser.parse(gradeString);
-				isSubmit = new Boolean[submit.size()];
-				for(int i = 0; i < submit.size(); i++){
-					if((submit.get(String.valueOf(i + 1)).toString()).equals("false"))
-						isSubmit[i] = Boolean.valueOf(submit.get(String.valueOf(i + 1)).toString());
+				
+				_stuGrade = (JSONObject) parser.parse(gradeString);
+				isSubmit = new Boolean[_stuGrade.size()];
+				for(int i = 0; i < _stuGrade.size(); i++){
+					if((_stuGrade.get(String.valueOf(i + 1)).toString()).equals("false"))
+						isSubmit[i] = Boolean.valueOf(_stuGrade.get(String.valueOf(i + 1)).toString());
 					else
 						isSubmit[i] = true;
 				}
@@ -259,11 +263,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		} else if (cmd.equals("task.submit")) {
 			int dialogResult = JOptionPane.showConfirmDialog(null, "若提交後則無法再修改程式碼，確認提交？", "Submit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 			if(dialogResult == JOptionPane.YES_OPTION){
-				/*
-				tb1.remove(tb2ForSubmit);
-				tb1.revalidate();
-				tb1.repaint();
-				*/
+				submitTask();
 			}	
 		} else if (cmd.equals("task.reset")) {
 			//從 .part 載入
@@ -298,6 +298,89 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 				}
 			}
 		}
+	}
+	
+	private void submitTask(){
+		/*
+		tb1.remove(tb2ForSubmit);
+		tb1.revalidate();
+		tb1.repaint();
+		///////set isSubmit;
+		*/
+		try {
+		XTask task = env.getActiveTask();
+		XProject project = env.getActiveProject();
+		String language = project.getProperty("language");
+				
+		ProgramTester testRobot = ProgramTester.getInstance(project.getRootPath());
+		testRobot.compiler(language, task.getProperty("ExName"));
+		
+		ArrayList<String> correctAns = testRobot.readFile(task.getProperty("ExName") + ".cond2", "#####");
+		ArrayList<String> _param = testRobot.readFile(task.getProperty("ExName") + ".exam", "#");
+		
+		String stuAns = new String();
+		String corAns = new String();
+		Boolean[] stuGrade = new Boolean[_param.size()];
+		Map<Integer, Boolean> map = new HashMap<Integer, Boolean>();
+		
+		console.print("\n===============Begin Test===============\n");
+		if(_param.size() == 0){
+			stuAns = regStr(testRobot.executeSrc(language, "", task.getProperty("ExName")));
+			corAns = regStr(correctAns.get(0));
+			Boolean isPass;;
+			if(stuAns.equals(corAns))
+				isPass = true;
+			else
+				isPass = false;
+			
+			map.put(1, isPass);
+			printTest(1, isPass, corAns, stuAns);
+		} else
+			for(int i = 0; i < _param.size(); i++){
+				stuAns = regStr(testRobot.executeSrc(language, _param.get(i), task.getProperty("ExName")));
+				corAns = regStr(correctAns.get(i));
+				if(stuAns.equals(corAns))
+					stuGrade[i] = true;
+				else
+					stuGrade[i] = false;
+					
+				map.put(i + 1, stuGrade[i]);
+					
+				printTest(i + 1, stuGrade[i], corAns, stuAns);
+			}
+		
+		//_stuGrade;
+		console.print(_stuGrade.toString() + "\n\n\n");
+		
+		//comboTask.getSelectedIndex();
+		_stuGrade.put(String.valueOf(comboTask.getSelectedIndex() + 1), new HashMap<Integer, Boolean>(map));
+		console.print(_stuGrade.toString());
+		
+		//for(int j = 0; j < stuGrade.length; j++){
+		//	console.print(String.valueOf(stuGrade[j]) + " ");
+		//}
+		// upload grade.
+		} catch (Exception e) {
+		
+		}
+	}
+	
+	private void printTest(int number, Boolean isPass, String corAns, String stuAns){
+		console.print("TEST " + number + "\n", Color.red);
+		console.print("EXPECTED RESULT：\n", Color.blue);
+		console.print(corAns);
+		console.print("\nYOUR RESULT：\n", Color.blue);
+		console.print(stuAns);
+		if(isPass)
+			console.print("\nDESCRIPTION： " + "match\n", Color.green);
+		else
+			console.print("\nDESCRIPTION： " + "Mismatch\n", Color.red);
+					
+		console.print("---------------------------\n");		
+	}
+	
+	private String regStr(String str){
+		return str.trim().replaceAll(Character.toString((char) 13), "");
 	}
 
 	private void openExplorer() {
@@ -556,6 +639,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 
 		console.switchTo(idx);
 		
+		// set Submit button.
 		if(env.getIsExam().equals("true") && project.getPropertyEx("hasExamFile").equals("true")){
 			tb1.remove(tb2ForSubmit);
 			tb1.revalidate();
@@ -564,7 +648,6 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 				tb1.add(tb2ForSubmit);
 			}
 		}
-		console.println("new IDX:" + idx);
 		// mm.saveMessage(task.getId(), "start", "", "");
 	}
 
