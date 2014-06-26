@@ -49,6 +49,10 @@ switch(action){
 			e.printStackTrace()
 		}
 		break;
-	
+	case 'saveGrade':
+		updateSql = """ UPDATE ST_GRADE SET GRADE=? WHERE CLASS_ID=? AND COURSE_ID=? AND LESSON_ID=? AND USER_ID=? """
+		grade = request.getParameter('grade')
+		sql.executeUpdate(updateSql, [grade, classId, courseId, lessonId, userId])	
+		break;
 }
 sql.close()

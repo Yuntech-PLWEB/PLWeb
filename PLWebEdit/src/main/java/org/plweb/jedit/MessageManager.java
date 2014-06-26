@@ -273,7 +273,7 @@ public class MessageManager {
 		props.setProperty("userId", String.valueOf(userId));
 		
 		ServerRequest request = new ServerRequest("init", props);
-		request.setGradeFlag();
+		request.setGradeFlag(); // set use grade url.
 		queue1.offer(request);
 		
 		while(request.isFinished() == false){
@@ -285,6 +285,20 @@ public class MessageManager {
 		}
 		
 		return request.getResponse();	
+	}
+	
+	public void saveGrade(Object grade, Object classId, Object courseId, Object lessonId, Object userId){
+		Properties props = new Properties();
+		
+		props.setProperty("classId", String.valueOf(classId));
+		props.setProperty("courseId", String.valueOf(courseId));
+		props.setProperty("lessonId", String.valueOf(lessonId));
+		props.setProperty("userId", String.valueOf(userId));
+		props.setProperty("grade", String.valueOf(grade));
+		
+		ServerRequest request = new ServerRequest("saveGrade", props);
+		request.setGradeFlag(); // set use grade url.
+		queue1.offer(request);
 	}
 	
 }

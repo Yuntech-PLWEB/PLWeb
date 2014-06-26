@@ -61,6 +61,9 @@ public class CompilerRunner extends Thread {
 	
 	final private Color COLOR_OK = new Color(0, 180, 0);
 	final private Color COLOR_ERROR = new Color(255, 0, 0);
+	
+	private Boolean isSubmit[];
+	private int currentTaskIdx;
 
 	public CompilerRunner(MessageConsoleInterface console, String mode,
 			String bufferText) {
@@ -309,17 +312,26 @@ public class CompilerRunner extends Thread {
 		}
 
 		// ---save-report---------------------------------------------
-		saveReport();
+		if((env.getIsExam().equals("false")) || (env.getIsExam().equals("true") && project.getPropertyEx("hasExamFile").equals("false")) || (env.getIsExam().equals("true") && project.getPropertyEx("hasExamFile").equals("true") && isSubmit[currentTaskIdx].equals(false))) {
+			
+			saveReport();
+			
+			// check mode
+			if (env.getLessonMode().equals("student")) {
+				// ---upload--------------------------------------------
+				new Thread(new UploadFile(project, task)).start();
+			}
+			
+			
+			
+		} else {
+			console.print("此題程式碼與分數將不會更新。", Color.red);
+		}
 
 		// save snapshot
 		// saveSnapshot();
 
-		// check mode
-		if (env.getLessonMode().equals("student")) {
-
-			// ---upload--------------------------------------------
-			new Thread(new UploadFile(project, task)).start();
-		}
+		
 
 		// File testFile = new File(rootPath, ".plwebtest");
 		// try {
@@ -394,7 +406,14 @@ public class CompilerRunner extends Thread {
 		// testFile.delete();
 		// }
 	}
-
+	
+	public void setIsSubmit(Boolean isSubmit[]){
+		this.isSubmit = isSubmit;
+	}
+	public void setCurrentTaskIdx(int idx){
+		this.currentTaskIdx = idx;
+	}
+	
 	/**
 	 * Update LAST_STATE; count TEST_OK, TEST_ERROR
 	 * 
@@ -418,6 +437,7 @@ public class CompilerRunner extends Thread {
 		mm.saveReport(task.getId(), test_ok, test_error,
 				testResult.getXmlString(), time_run, time_used, report_state,
 				code, console.getAllText());
+		
 	}
 
 	/**
