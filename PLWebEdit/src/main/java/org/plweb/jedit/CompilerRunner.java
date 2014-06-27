@@ -64,6 +64,8 @@ public class CompilerRunner extends Thread {
 	
 	private Boolean isSubmit[];
 	private int currentTaskIdx;
+	
+	private ProgramTester testRobot = null;
 
 	public CompilerRunner(MessageConsoleInterface console, String mode,
 			String bufferText) {
@@ -163,9 +165,9 @@ public class CompilerRunner extends Thread {
 							console.println("Please set the language into Project property.");
 							
 						project.setProperty("hasExamFile", "true");
-						ProgramTester testRobot = ProgramTester.getInstance(project.getRootPath());
+						testRobot = ProgramTester.getInstance(project.getRootPath());
 						testRobot.compiler(language, task.getProperty("ExName"));
-			
+						
 						ArrayList<String> param = testRobot.readFile(task.getProperty("ExName") + ".exam", "#");
 						String result = new String();
 						int paramNum = 1;				
@@ -179,6 +181,7 @@ public class CompilerRunner extends Thread {
 							}
 							paramNum = param.size();
 						}
+						
 						task.setProperty("paramNum", Integer.toString(paramNum));
 						testRobot.printer(task.getProperty("ExName") + ".cond2", result);
 						console.println(result);
@@ -531,6 +534,9 @@ public class CompilerRunner extends Thread {
 			process.destroy();
 			process = null;
 		}
+		
+		if(testRobot != null)
+			testRobot.interrupt();
 	}
 
 	static void waitForOrKill(Process self, long numberOfMillis) {

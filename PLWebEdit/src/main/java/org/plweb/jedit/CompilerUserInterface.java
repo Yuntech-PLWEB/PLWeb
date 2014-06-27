@@ -473,6 +473,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		}
 
 		project.insertTask(idx + 1, newTask);
+		newTask.setProperty("paramNum", "null");
 
 		refreshTaskComboBox();
 		int newIdx = idx + 1;
@@ -852,7 +853,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 				Map<Integer, Integer> map = new HashMap<Integer, Integer>();
 				
 				for(int i = 0; i < tasks.size(); i++){
-					if(tasks.get(i).getPropertyEx("paramNum") != null){
+					if(tasks.get(i).getPropertyEx("paramNum") != null && !tasks.get(i).getPropertyEx("paramNum").equals("null")){
 						for(int j = 0; j < Integer.parseInt(tasks.get(i).getProperty("paramNum")); j++){
 							map.put(j + 1, 0);
 						}

@@ -5,12 +5,24 @@ import java.util.ArrayList;
 
 public class ProgramTester {
 	
+	private Boolean isPassCompiler = false;
+	
 	private String rootPath;
-	private String _javac = "javac";
+	private String _javac = "javac -encoding utf-8";
 	private String _java = "java";
 	private String _javaExtension = ".java";
+	
+	private String _cc = "gcc -fexec-charset=big5 -o ";
+	private String _cExecute = ".exe";
+	private String _cExtension = ".c";
+	
+	private String _scheme = "petite -q < ";
+	private String _schemeExecute = ".scm";
+	
 	private String cmd;
 	private String extension;
+	
+	private Process process;
 	
 	private static ProgramTester instance = null;
 	
@@ -34,55 +46,117 @@ public class ProgramTester {
 	
 	// compiler the source code
 	public void compiler(String programLanguage, String srcName) throws IOException, InterruptedException {
-		setCompilerCmd(programLanguage);
-		
-		Process compiler = Runtime.getRuntime().exec(cmd + " " + rootPath + "\\" + srcName + extension);
-		compiler.waitFor(); // wait for compiler.
+		if(!programLanguage.equalsIgnoreCase("scheme")) {
+			setCompilerCmd(programLanguage, srcName);
+			
+			File directPath = new File(this.rootPath);
+			process = Runtime.getRuntime().exec(cmd + " " + rootPath + "\\" + srcName + extension, null, directPath);
+			process.waitFor(); // wait for compiler.
+			
+			if (process.exitValue() != 0) {
+				isPassCompiler = false;
+			} else
+				isPassCompiler = true;
+		}
 	}
 	
-	private void setCompilerCmd(String programLanguage){
+	private void setCompilerCmd(String programLanguage, String srcName){
 		if(programLanguage.equalsIgnoreCase("java")){
 			this.cmd = _javac;
 			this.extension = _javaExtension;
+		} else if(programLanguage.equalsIgnoreCase("c")){
+			this.cmd = _cc + srcName + _cExecute;
+			this.extension = _cExtension;
 		}
 	}
 	
 	private void setRunCmd(String programLanguage){
 		if(programLanguage.equalsIgnoreCase("java")){
-			this.cmd = _java;
+			this.cmd = _java + " ";
 			this.extension = "";
+		} else if(programLanguage.equalsIgnoreCase("c")){
+			this.cmd = this.rootPath + "\\";
+			this.extension = _cExecute; //.exe
+		} else if(programLanguage.equalsIgnoreCase("scheme")) {
+			this.cmd = _scheme;
+			this.extension = _schemeExecute;
 		}
+	}
+	
+	// for scheme
+	private String forScheme(String srcName, String param)throws IOException{
+		// generate new source code
+		String tmpName = "_TMP";
+		BufferedReader br = new BufferedReader(new FileReader(this.rootPath + "\\" + srcName + _schemeExecute));
+		try {
+			StringBuilder sb = new StringBuilder();
+			String line = br.readLine();
+			
+			while (line != null) {
+				sb.append(line);
+				sb.append("\n");
+				line = br.readLine();
+			}
+			String result = sb.toString() + param;
+			printer(srcName + tmpName + _schemeExecute, result);
+		} finally {
+			br.close();
+		}
+		
+		return srcName + tmpName;
+		
 	}
 	
 	// run the binary code (with param) 
 	public String executeSrc(String programLanguage, String param, String srcName) throws IOException, InterruptedException {
 			setRunCmd(programLanguage);
 			
-			File directPath = new File(this.rootPath);			
-			Process p = Runtime.getRuntime().exec(cmd + " " + srcName + extension, null, directPath);
-			InputStream inputStream = p.getInputStream();
-			InputStreamReader isr = new InputStreamReader(inputStream);
-				
-			// give input(s) to process p.
-			OutputStream out = p.getOutputStream();
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
-			writer.write(param);
-			writer.flush();
-				
-			// print the output from process p.
-			int n1;
-			char[] c1 = new char[1024];
-			StringBuffer standardOutput = new StringBuffer();
-			while ((n1 = isr.read(c1)) > 0) {
-				standardOutput.append(c1, 0, n1);
+			if(programLanguage.equalsIgnoreCase("scheme")){
+				srcName = forScheme(srcName, param);
+				isPassCompiler = true;
 			}
+			
+			if(isPassCompiler){
+				File directPath = new File(this.rootPath);
+				String[] _cmd = {"cmd", "/c", (cmd + srcName + extension)};
+				process = Runtime.getRuntime().exec(_cmd, null, directPath);
+				
+				
+				
+				InputStream inputStream = process.getInputStream();
+				InputStreamReader isr = new InputStreamReader(inputStream);
 					
-			return standardOutput.toString();
+				// give input(s) to process.
+				OutputStream out = process.getOutputStream();
+				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
+				writer.write(param);
+				writer.flush();
+					
+				// print the output from process p.
+				int n1;
+				char[] c1 = new char[1024];
+				StringBuffer standardOutput = new StringBuffer();
+				while ((n1 = isr.read(c1)) > 0) {
+					standardOutput.append(c1, 0, n1);
+				}
+						
+				if(programLanguage.equalsIgnoreCase("scheme")){
+					File delete = new File(this.rootPath + "\\" + srcName + extension);
+					delete.delete();
+				}
+				
+				//String _return = new String(standardOutput.toString().getBytes("UTF-8"), "UTF-8");
+				
+				return standardOutput.toString();
+			} else
+				return "compiler_error...\n";
+			
 	}
 	
 	// read exam file for get parameter
 	public ArrayList<String> readFile(String src, String flag) throws IOException{
-		BufferedReader br = new BufferedReader(new FileReader(this.rootPath + "\\" + src));
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(this.rootPath + "\\" + src), "utf-8"));
+	//	BufferedReader br = new BufferedReader(new FileReader(this.rootPath + "\\" + src));
 		try {
 			StringBuilder sb = new StringBuilder();
 			String line = br.readLine();
@@ -102,6 +176,13 @@ public class ProgramTester {
 			return parameter;
 		} finally {
 			br.close();
+		}
+	}
+	
+	public void interrupt(){
+		if (process != null) {
+			process.destroy();
+			process = null;
 		}
 	}
 
