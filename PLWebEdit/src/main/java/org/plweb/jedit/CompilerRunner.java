@@ -66,6 +66,7 @@ public class CompilerRunner extends Thread {
 	private int currentTaskIdx;
 	
 	private ProgramTester testRobot = null;
+	
 
 	public CompilerRunner(MessageConsoleInterface console, String mode,
 			String bufferText) {
@@ -154,7 +155,7 @@ public class CompilerRunner extends Thread {
 
 		try {
 			if (task != null) {
-
+			
 				if(env.getLessonMode().equalsIgnoreCase("author")){
 					File exam = new File(project.getRootPath() + "\\" + task.getProperty("ExName") + ".exam");
 					if(exam.exists()) {
@@ -166,14 +167,15 @@ public class CompilerRunner extends Thread {
 							
 						project.setProperty("hasExamFile", "true");
 						testRobot = ProgramTester.getInstance(project.getRootPath());
+						console.print("compiler the source code...\n", Color.green);
 						testRobot.compiler(language, task.getProperty("ExName"));
-						
+						console.print("read the param from .exam file\n", Color.green);
 						ArrayList<String> param = testRobot.readFile(task.getProperty("ExName") + ".exam", "#");
 						String result = new String();
-						int paramNum = 1;				
+						int paramNum = 1;
 						if(param.size() == 0){
 							result += testRobot.executeSrc(language, "", task.getProperty("ExName"));
-							result += "#####\n";
+							result += "\n#####\n";
 						} else {
 							for(int i = 0; i < param.size(); i++){
 								result += testRobot.executeSrc(language, param.get(i), task.getProperty("ExName"));
@@ -184,10 +186,11 @@ public class CompilerRunner extends Thread {
 						
 						task.setProperty("paramNum", Integer.toString(paramNum));
 						testRobot.printer(task.getProperty("ExName") + ".cond2", result);
+						console.println("=============" + task.getProperty("ExName") + ".cond2=============\n", Color.red);
 						console.println(result);
 					}
 				}
-			
+
 				String status = "undefined";
 				for (XCommand command : task.getCommands()) {
 					if (!command.getMode().equalsIgnoreCase(mode)) {
@@ -294,6 +297,8 @@ public class CompilerRunner extends Thread {
 				// keystroke
 				// );
 				// }
+				
+				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -528,17 +533,20 @@ public class CompilerRunner extends Thread {
 		}
 	}
 
+	public ProgramTester getRobot(){
+		return testRobot;
+	}
+	
 	public void interrupt() {
 		enabled = false;
 		if (process != null) {
 			process.destroy();
 			process = null;
-		}
-		
+		}		
 		if(testRobot != null)
 			testRobot.interrupt();
 	}
-
+	
 	static void waitForOrKill(Process self, long numberOfMillis) {
 		ProcessRunner runnable = new ProcessRunner(self);
 		Thread thread = new Thread(runnable);

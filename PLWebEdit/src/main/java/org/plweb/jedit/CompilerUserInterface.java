@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
@@ -301,63 +302,74 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	}
 	
 	private void submitTask(){
-		try {
-			XTask task = env.getActiveTask();
-			XProject project = env.getActiveProject();
-			String language = project.getProperty("language");
+		if (runner != null && runner.isAlive()) {
+			View v = jEdit.getActiveView();
+			GUIUtilities.message(v, "compiler.dialog0", null);
+		} else {
+		
+			Runnable runnable = new Runnable() {
+				public void run() {
+					try {
+						XTask task = env.getActiveTask();
+						XProject project = env.getActiveProject();
+						String language = project.getProperty("language");
+								
+						ProgramTester testRobot = ProgramTester.getInstance(project.getRootPath());
+						testRobot.compiler(language, task.getProperty("ExName"));
+						
+						ArrayList<String> correctAns = testRobot.readFile(task.getProperty("ExName") + ".cond2", "#####");
+						ArrayList<String> _param = testRobot.readFile(task.getProperty("ExName") + ".exam", "#");
+						
+						String stuAns = new String();
+						String corAns = new String();
+						Boolean[] stuGrade = new Boolean[_param.size()];
+						Map<Integer, Boolean> map = new HashMap<Integer, Boolean>();
+						
+						console.print("\n===============Begin Test===============\n");
+						if(_param.size() == 0){
+							stuAns = regStr(testRobot.executeSrc(language, "", task.getProperty("ExName")));
+							corAns = regStr(correctAns.get(0));
+							Boolean isPass;;
+							if(stuAns.equals(corAns))
+								isPass = true;
+							else
+								isPass = false;
+							
+							map.put(1, isPass);
+							printTest(1, isPass, corAns, stuAns);
+						} else
+							for(int i = 0; i < _param.size(); i++){
+								stuAns = regStr(testRobot.executeSrc(language, _param.get(i), task.getProperty("ExName")));
+								corAns = regStr(correctAns.get(i));
+								if(stuAns.equals(corAns))
+									stuGrade[i] = true;
+								else
+									stuGrade[i] = false;
+									
+								map.put(i + 1, stuGrade[i]);
+									
+								printTest(i + 1, stuGrade[i], corAns, stuAns);
+							}
+						
+						_stuGrade.put(String.valueOf(comboTask.getSelectedIndex() + 1), new HashMap<Integer, Boolean>(map));
+						
+						// saveGrade to Server
+						mm.saveGrade(_stuGrade.toString(), env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId());
+						
+					} catch (Exception e) {
 					
-			ProgramTester testRobot = ProgramTester.getInstance(project.getRootPath());
-			testRobot.compiler(language, task.getProperty("ExName"));
-			
-			ArrayList<String> correctAns = testRobot.readFile(task.getProperty("ExName") + ".cond2", "#####");
-			ArrayList<String> _param = testRobot.readFile(task.getProperty("ExName") + ".exam", "#");
-			
-			String stuAns = new String();
-			String corAns = new String();
-			Boolean[] stuGrade = new Boolean[_param.size()];
-			Map<Integer, Boolean> map = new HashMap<Integer, Boolean>();
-			
-			console.print("\n===============Begin Test===============\n");
-			if(_param.size() == 0){
-				stuAns = regStr(testRobot.executeSrc(language, "", task.getProperty("ExName")));
-				corAns = regStr(correctAns.get(0));
-				Boolean isPass;;
-				if(stuAns.equals(corAns))
-					isPass = true;
-				else
-					isPass = false;
-				
-				map.put(1, isPass);
-				printTest(1, isPass, corAns, stuAns);
-			} else
-				for(int i = 0; i < _param.size(); i++){
-					stuAns = regStr(testRobot.executeSrc(language, _param.get(i), task.getProperty("ExName")));
-					corAns = regStr(correctAns.get(i));
-					if(stuAns.equals(corAns))
-						stuGrade[i] = true;
-					else
-						stuGrade[i] = false;
-						
-					map.put(i + 1, stuGrade[i]);
-						
-					printTest(i + 1, stuGrade[i], corAns, stuAns);
+					}
 				}
+			};
 			
-			_stuGrade.put(String.valueOf(comboTask.getSelectedIndex() + 1), new HashMap<Integer, Boolean>(map));
-			
-			// set isSubmit
-			isSubmit[comboTask.getSelectedIndex()] = true;
-
-			// saveGrade to Server
-			mm.saveGrade(_stuGrade.toString(), env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId());
-			
+			new Thread(runnable).start();
 			//remove submit button
 			tb1.remove(tb2ForSubmit);
 			tb1.revalidate();
 			tb1.repaint();
 			
-		} catch (Exception e) {
-		
+			// set isSubmit
+			isSubmit[comboTask.getSelectedIndex()] = true;
 		}
 	}
 	
@@ -798,7 +810,10 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	/**
 	 * Action Interrupt
 	 */
-	public void interrupt() {
+	public void interrupt()throws IOException, InterruptedException {
+		
+		ProgramTester.getInstance(env.getActiveProject().getRootPath()).interrupt();
+	
 		if (runner != null && runner.isAlive()) {
 			runner.interrupt();
 		} else {

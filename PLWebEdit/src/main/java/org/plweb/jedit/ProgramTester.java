@@ -22,7 +22,7 @@ public class ProgramTester {
 	private String cmd;
 	private String extension;
 	
-	private Process process;
+	private Process process = null;
 	
 	private static ProgramTester instance = null;
 	
@@ -119,9 +119,10 @@ public class ProgramTester {
 			if(isPassCompiler){
 				File directPath = new File(this.rootPath);
 				String[] _cmd = {"cmd", "/c", (cmd + srcName + extension)};
-				process = Runtime.getRuntime().exec(_cmd, null, directPath);
-				
-				
+				if(programLanguage.equalsIgnoreCase("scheme"))
+					process = Runtime.getRuntime().exec(_cmd, null, directPath);
+				else
+					process = Runtime.getRuntime().exec(cmd + srcName + extension, null, directPath);
 				
 				InputStream inputStream = process.getInputStream();
 				InputStreamReader isr = new InputStreamReader(inputStream);
@@ -180,7 +181,16 @@ public class ProgramTester {
 	}
 	
 	public void interrupt(){
-		if (process != null) {
+		/*Runnable runnable = new Runnable() {
+			public void run() {
+				process.destroy();
+			}
+		};
+	
+		if (this.process != null) {
+			new Thread(runnable).start();			
+		}*/
+		if(process != null) {
 			process.destroy();
 			process = null;
 		}
