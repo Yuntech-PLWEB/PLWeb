@@ -178,12 +178,33 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			}
 		}
 		
+		if(env.getIsExam().equals("true"))
+			detectTaskMgr();
 		/*
 		 * First Time reload
 		 */
 		refreshTaskComboBox();
 		reloadTask();
 	}
+	
+	// in ExamMode detect taskmgr.exe
+	private void detectTaskMgr(){
+		Runnable runnable = new Runnable() {
+			Process killProcess;
+			public void run() {
+				while(true){
+					try {
+						Process killProcess = Runtime.getRuntime().exec("taskkill /f /im taskmgr.exe");
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {
+					} catch (IOException e) {
+					}
+				}
+			}
+		};
+		new Thread(runnable).start();
+	}
+	
 	// clear system copy clipboard
 	private void clearCopyClipBoard(){
 		try {
