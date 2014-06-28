@@ -67,6 +67,7 @@ public class CompilerRunner extends Thread {
 	
 	private ProgramTester testRobot = null;
 	
+	private Boolean isInterrupt = false;
 
 	public CompilerRunner(MessageConsoleInterface console, String mode,
 			String bufferText) {
@@ -178,10 +179,13 @@ public class CompilerRunner extends Thread {
 							result += "\n#####\n";
 						} else {
 							for(int i = 0; i < param.size(); i++){
+								if(isInterrupt == true)
+									break;
 								result += testRobot.executeSrc(language, param.get(i), task.getProperty("ExName"));
 								result += "#####\n";
 							}
 							paramNum = param.size();
+							isInterrupt = false;
 						}
 						
 						task.setProperty("paramNum", Integer.toString(paramNum));
@@ -545,6 +549,8 @@ public class CompilerRunner extends Thread {
 		}		
 		if(testRobot != null)
 			testRobot.interrupt();
+		
+		isInterrupt = true;
 	}
 	
 	static void waitForOrKill(Process self, long numberOfMillis) {

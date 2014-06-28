@@ -71,6 +71,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	private JToolBar tb2ForSubmit;
 	
 	private JSONObject _stuGrade;
+	private Boolean isInterrupt = false;
 
 	public CompilerUserInterface() {
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 3, 3));
@@ -360,6 +361,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 							printTest(1, isPass, corAns, stuAns);
 						} else
 							for(int i = 0; i < _param.size(); i++){
+								if(isInterrupt == true)
+									break;
 								stuAns = regStr(testRobot.executeSrc(language, _param.get(i), task.getProperty("ExName")));
 								corAns = regStr(correctAns.get(i));
 								if(stuAns.equals(corAns))
@@ -371,7 +374,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 									
 								printTest(i + 1, stuGrade[i], corAns, stuAns);
 							}
-						
+							isInterrupt = false;
 						_stuGrade.put(String.valueOf(comboTask.getSelectedIndex() + 1), new HashMap<Integer, Boolean>(map));
 						
 						// saveGrade to Server
@@ -834,6 +837,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	public void interrupt()throws IOException, InterruptedException {
 		
 		ProgramTester.getInstance(env.getActiveProject().getRootPath()).interrupt();
+		isInterrupt = true;
 	
 		if (runner != null && runner.isAlive()) {
 			runner.interrupt();
