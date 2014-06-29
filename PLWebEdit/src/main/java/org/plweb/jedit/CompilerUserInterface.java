@@ -361,7 +361,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 							printTest(1, isPass, corAns, stuAns);
 						} else
 							for(int i = 0; i < _param.size(); i++){
-								if(isInterrupt == true)
+								if(isInterrupt.equals(true))
 									break;
 								stuAns = regStr(testRobot.executeSrc(language, _param.get(i), task.getProperty("ExName")));
 								corAns = regStr(correctAns.get(i));

@@ -179,7 +179,7 @@ public class CompilerRunner extends Thread {
 							result += "\n#####\n";
 						} else {
 							for(int i = 0; i < param.size(); i++){
-								if(isInterrupt == true)
+								if(isInterrupt.equals(true))
 									break;
 								result += testRobot.executeSrc(language, param.get(i), task.getProperty("ExName"));
 								result += "#####\n";

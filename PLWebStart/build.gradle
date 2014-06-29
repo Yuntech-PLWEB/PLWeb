@@ -28,6 +28,7 @@ dependencies {
     compile files ('lib/jedit.jar')
     compile files ('lib/DJNativeSwing.jar')
     compile files ('lib/DJNativeSwing-SWT.jar')
+	
     //providedRuntime files ('lib/swt-3.7.1-macosx-x86_64.jar')
 }
 
