@@ -72,6 +72,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	
 	private JSONObject _stuGrade;
 	private Boolean isInterrupt = false;
+	private Encryption fileEncrypt;
 
 	public CompilerUserInterface() {
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 3, 3));
@@ -338,6 +339,10 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 								
 						ProgramTester testRobot = ProgramTester.getInstance(project.getRootPath());
 						testRobot.compiler(language, task.getProperty("ExName"));
+						
+						// decrypt file
+						fileEncrypt = new Encryption();
+						fileEncrypt.decrypt(project.getRootPath() + "\\" + task.getProperty("ExName") + ".cond2.enc");
 						
 						ArrayList<String> correctAns = testRobot.readFile(task.getProperty("ExName") + ".cond2", "#####");
 						ArrayList<String> _param = testRobot.readFile(task.getProperty("ExName") + ".exam", "#");

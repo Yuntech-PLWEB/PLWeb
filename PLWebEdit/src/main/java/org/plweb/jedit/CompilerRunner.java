@@ -68,6 +68,8 @@ public class CompilerRunner extends Thread {
 	private ProgramTester testRobot = null;
 	
 	private Boolean isInterrupt = false;
+	
+	private Encryption fileEncrypt;
 
 	public CompilerRunner(MessageConsoleInterface console, String mode,
 			String bufferText) {
@@ -190,6 +192,13 @@ public class CompilerRunner extends Thread {
 						
 						task.setProperty("paramNum", Integer.toString(paramNum));
 						testRobot.printer(task.getProperty("ExName") + ".cond2", result);
+						// encrypt file.cond2
+						fileEncrypt = new Encryption();
+						fileEncrypt.encrypt(project.getRootPath() + "\\" + task.getProperty("ExName") + ".cond2");						
+						// delete origin cond2
+						File del = new File(project.getRootPath() + "\\" + task.getProperty("ExName") + ".cond2");
+						del.delete();
+						
 						console.println("=============" + task.getProperty("ExName") + ".cond2=============\n", Color.red);
 						console.println(result);
 					}
