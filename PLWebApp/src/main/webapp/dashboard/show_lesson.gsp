@@ -49,6 +49,13 @@
 					<span>查看練習進度</span>
 				</a>
 			<%}%>
+			
+			<%if (helper.attr('isGradeSet')) {%>
+				<a style="margin-top:15px;" class="fancy-button-gray embedded-link" href="${helper.attr('gradeSet')}" target="_blank" title="設定配分">
+					<span class="icons ss_chart_bar"></span>
+					<span>設定配分</span>
+				</a>
+			<%}%>
 		</div>
 	</div>
 	

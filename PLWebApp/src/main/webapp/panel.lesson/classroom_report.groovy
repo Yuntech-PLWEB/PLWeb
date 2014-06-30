@@ -2,6 +2,10 @@ import groovy.sql.Sql
 import org.plweb.webapp.helper.CommonHelper
 import groovy.xml.MarkupBuilder
 import javax.naming.InitialContext
+import org.json.simple.JSONValue
+import org.json.simple.JSONObject
+import org.json.simple.parser.JSONParser
+import org.json.simple.parser.ParseException
 
 if (!session) {
 	response.sendRedirect('permission_denied.groovy')
@@ -147,6 +151,11 @@ else {
 	AVG_TIME_USED = 0
 }
 
+row = sql.firstRow(""" SELECT * FROM GRADE_SETTING WHERE COURSE_ID=? AND LESSON_ID=? """, [course_id, lesson_id])
+if(row)
+        isGradeSet = true;
+else
+        isGradeSet = false;
 
 sql.close()
 
@@ -229,6 +238,8 @@ html.html {
 				th (class: 'small', width: 90, 'User ID')
 				th (class: 'small', width: 40, 'Edit')
 				th ('Status Report')
+				if(isGradeSet)
+					th(class: 'small', width: 90, 'Grade')
 				th (width: 110, 'Time')
 				/*
 				th (width:60, '#total')
@@ -387,6 +398,57 @@ html.html {
 						}
 						*/
 					}
+					
+					if(isGradeSet){
+                        sql = new Sql(ds.connection)
+
+                        gradeSet = sql.firstRow(""" SELECT GRADE_SET, TOTAL_SET FROM GRADE_SETTING WHERE COURSE_ID=? AND LESSON_ID=? """, [course_id, lesson_id])
+                        stuGrade = sql.firstRow(""" SELECT GRADE FROM ST_GRADE WHERE CLASS_ID=? AND COURSE_ID=? AND LESSON_ID=? AND USER_ID=? """, [class_id, course_id, lesson_id, student.id])
+                        sql.close()
+
+                        finalStuGrade = 0
+                        JSONParser parser = new JSONParser()
+                        JSONObject _gradeSet = (JSONObject) parser.parse(gradeSet.GRADE_SET)
+                        totalFlag = true;
+                        if(!stuGrade.equals(null)){
+                            JSONObject _stuGrade = (JSONObject) parser.parse(stuGrade.GRADE)
+                                if(!gradeSet.TOTAL_SET.equals(null)){
+                                    //finalStuGrade = _totalSet.get(String.valueOf(1)).toString()
+                                }else
+                                    totalFlag = false;
+                                for(i = 0; i < _stuGrade.size(); i++){
+                                    tmpGrade = 0
+                                    tmpObj = _stuGrade.get(String.valueOf(i+1)).toString()
+                                    if(tmpObj.equals("false"))
+                                        continue;
+                                    else {
+                                        _tmpObj = (JSONObject) parser.parse(tmpObj)
+										for(int j = 0; j < _tmpObj.size(); j++){
+											if(_tmpObj.get(String.valueOf(j+1)).toString().equals("false")){
+												continue;
+											} else {
+												_tmpGradeSet = _gradeSet.get(String.valueOf(i+1)).toString()
+												grade = (JSONObject) parser.parse(_tmpGradeSet)
+												tmpGrade += Float.valueOf(grade.get(String.valueOf(j+1)).toString())
+											}
+										}
+                                    }
+									if(totalFlag){
+										_totalSet = (JSONObject) parser.parse(gradeSet.TOTAL_SET)
+										tmpGrade = Float.valueOf(_totalSet.get(String.valueOf(1)).toString()) * tmpGrade / 100
+									}else
+										tmpGrade = 0
+
+                                        finalStuGrade += tmpGrade
+                                }
+								if(finalStuGrade != 0)
+									finalStuGrade = String.format("%.2f", finalStuGrade)
+								
+						}		
+					}			
+                                td(align: 'center', "${finalStuGrade}")
+
+					
 					td {
 						if (!L_TIMEDATA.get(student.id) || !MAX_TIME_USED || !AVG_TIME_USED) {
 							pect = 0

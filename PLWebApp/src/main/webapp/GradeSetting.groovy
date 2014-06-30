@@ -54,5 +54,16 @@ switch(action){
 		grade = request.getParameter('grade')
 		sql.executeUpdate(updateSql, [grade, classId, courseId, lessonId, userId])	
 		break;
+	case 'setGrade':
+		utype = helper.sess('utype')
+		if(!session || utype != 'T'){
+			response.sendRedirect('/permission_denied.groovy')
+			return;
+		}
+		gradeSet = request.getParameter('gradeSet')
+		totalSet = request.getParameter('totalSet')
+		updateSql = """ UPDATE GRADE_SETTING SET GRADE_SET=?, TOTAL_SET=? WHERE COURSE_ID=? AND LESSON_ID=? """
+		sql.executeUpdate(updateSql, [gradeSet, totalSet, courseId, lessonId])
+		break;
 }
 sql.close()
