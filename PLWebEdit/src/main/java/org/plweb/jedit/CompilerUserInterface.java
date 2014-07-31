@@ -74,7 +74,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	private Boolean isInterrupt = false;
 	private Encryption fileEncrypt;
 
-	public CompilerUserInterface() {
+	public CompilerUserInterface() throws Exception {
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 3, 3));
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(400, 300));
@@ -182,6 +182,26 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		
 		if(env.getIsExam().equals("true"))
 			detectTaskMgr();
+			
+		// descrypt file(*.exam.enc)	
+		if(env.getLessonMode().equals("author")){
+			//XProject project = env.getActiveProject();
+			File _directory = new File(project.getRootPath());
+			File[] files = _directory.listFiles();
+			File del;
+			
+			fileEncrypt = new Encryption();
+			for(File file : files) {
+				if(file.getName().endsWith(".exam.enc")){
+					fileEncrypt.decrypt(project.getRootPath() + "\\" + file.getName());
+					
+					del = new File(project.getRootPath() + "\\" + file.getName());
+					del.delete();				
+				}
+			}
+			
+		}
+		
 		/*
 		 * First Time reload
 		 */
@@ -279,7 +299,10 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 				}
 			}
 		} else if (cmd.equals("project.upload")) {
-			saveProject();
+			try{
+				saveProject();
+			} catch (Exception _e){
+			}
 		} else if (cmd.equals("project.edit")) {
 			new FrameProjectEditor(env.getActiveProject());
 		} else if (cmd.equals("html.edit")) {
@@ -343,6 +366,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 						// decrypt file
 						fileEncrypt = new Encryption();
 						fileEncrypt.decrypt(project.getRootPath() + "\\" + task.getProperty("ExName") + ".cond2.enc");
+						fileEncrypt.decrypt(project.getRootPath() + "\\" + task.getProperty("ExName") + ".exam.enc");
 						
 						ArrayList<String> correctAns = testRobot.readFile(task.getProperty("ExName") + ".cond2", "#####");
 						ArrayList<String> _param = testRobot.readFile(task.getProperty("ExName") + ".exam", "#");
@@ -432,7 +456,26 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		}
 	}
 	
-	private void saveProject() {
+	private void saveProject() throws Exception {
+		// file encryption (*.exam)
+		XProject project = env.getActiveProject();
+		File _directory = new File(project.getRootPath());
+		File[] files = _directory.listFiles();
+		File del;
+		
+		fileEncrypt = new Encryption();
+		for(File file : files) {
+			if(file.getName().endsWith(".exam")){
+				fileEncrypt.encrypt(project.getRootPath() + "\\" + file.getName());
+				del = new File(project.getRootPath() + "\\" + file.getName());
+				del.delete();				
+			}
+		}
+		
+		//fileEncrypt = new Encryption();
+		//fileEncrypt.decrypt(project.getRootPath() + "\\" + task.getProperty("ExName") + ".cond2.enc");
+		
+		
 		new Thread(new ProjectUploader()).start();
 		new Thread(new SaveGradeSet()).start();
 	}
