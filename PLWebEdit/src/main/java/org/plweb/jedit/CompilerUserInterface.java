@@ -192,7 +192,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			
 			fileEncrypt = new Encryption();
 			for(File file : files) {
-				if(file.getName().endsWith(".exam.enc")){
+				if(file.getName().endsWith(".exam.enc") || file.getName().endsWith(".cond2.enc")){
 					fileEncrypt.decrypt(project.getRootPath() + "\\" + file.getName());
 					
 					del = new File(project.getRootPath() + "\\" + file.getName());
@@ -457,7 +457,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	}
 	
 	private void saveProject() throws Exception {
-		// file encryption (*.exam)
+		// file encryption (*.exam, *.cond2)
 		XProject project = env.getActiveProject();
 		File _directory = new File(project.getRootPath());
 		File[] files = _directory.listFiles();
@@ -465,7 +465,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		
 		fileEncrypt = new Encryption();
 		for(File file : files) {
-			if(file.getName().endsWith(".exam")){
+			if(file.getName().endsWith(".exam") || file.getName().endsWith(".cond2")){
 				fileEncrypt.encrypt(project.getRootPath() + "\\" + file.getName());
 				del = new File(project.getRootPath() + "\\" + file.getName());
 				del.delete();				
