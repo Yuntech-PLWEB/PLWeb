@@ -197,7 +197,7 @@ xml.jnlp(spec: '1.6+', codebase: codebase) {
 	}
 	resources() {
 		j2se(version: '1.6+')
-		
+		jar (href: 'core/plwebstart-1.0.jar')
 		//jar(href: 'suite-webstart.jar')
 		//jar(href: 'suite-common.jar')
 		//jar(href: 'suite-jedit.jar')
@@ -227,8 +227,6 @@ xml.jnlp(spec: '1.6+', codebase: codebase) {
                 jar (href: "libs/${file.name}")
             }
         }
-
-        jar (href: 'core/plwebstart-1.0.jar')
 
 		props.each {
 			property(name: it.key, value: it.value)

@@ -73,6 +73,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	private JSONObject _stuGrade;
 	private Boolean isInterrupt = false;
 	private Encryption fileEncrypt;
+	
+	
 
 	public CompilerUserInterface() throws Exception {
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 3, 3));
@@ -118,6 +120,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 				"task.reload"));
 
 		if (env.getLessonMode().equals("author")) {
+			tb2.add(createButton("mastery learning", "mastery_learning.png", "masteryLearning.edit"));
 			tb2.add(createButton("open explorer", "drive.png", "explorer.open"));
 
 			tb2.add(createButton("edit project", "book_edit.png",
@@ -312,6 +315,12 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			if(dialogResult == JOptionPane.YES_OPTION){
 				submitTask();
 			}	
+		} else if (cmd.equals("masteryLearning.edit")){
+		
+			MasteryLearning.getInstance().displayPanel();
+			
+			
+			
 		} else if (cmd.equals("task.reset")) {
 			//從 .part 載入
 			//System.out.println("task.reset!!");
