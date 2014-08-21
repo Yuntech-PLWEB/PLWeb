@@ -17,7 +17,7 @@ public class TextFieldHanlder extends TransferHandler {
 	protected String exportString(JComponent c){
 		JList list = (JList) c;
 		int _rtn = list.getSelectedIndex();
-		return String.valueOf(_rtn);
+		return String.valueOf(_rtn + 1);
 	}
 	
 	protected Transferable createTransferable(JComponent c) {

@@ -299,6 +299,32 @@ and LESSON_ID=?
 		}
 		
 		break;
+	case 'saveMasterySet':
+		// course_id;
+		// lesson_id;
+		masterySet = request.getParameter('masterySet')
+		
+		q1 = """ SELECT COUNT(*) as cc FROM MASTERY_SETTING WHERE COURSE_ID=? AND LESSON_ID=? """
+		q2 = """ INSERT INTO MASTERY_SETTING(COURSE_ID, LESSON_ID, MASTERY_SETTING) VALUES(?, ?, ?) """
+		q3 = """ UPDATE MASTERY_SETTING SET MASTERY_SETTING=? WHERE COURSE_ID=? AND LESSON_ID=? """
+		
+		try {
+			cc = sql.firstRow(q1, [course_id, lesson_id]).cc
+			
+			if(cc == 0) {
+				sql.executeInsert(q2, [course_id, lesson_id, masterySet])
+			} else {
+				sql.executeUpdate(q3, [masterySet, course_id, lesson_id])
+			}
+			
+		} catch(e) {
+			println e.message
+		}
+		
+		
+		
+		
+		break;
 }
 
 sql.close()

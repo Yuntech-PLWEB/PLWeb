@@ -27,6 +27,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import org.plweb.suite.common.xml.XProject;
+import org.plweb.suite.common.xml.XTask;
+
 public class MasteryLearning {
 
 	/**
@@ -35,6 +38,8 @@ public class MasteryLearning {
 	 */
 	private ArrayList<JTextField> textList = new ArrayList<JTextField>();
 	private static MasteryLearning instance = null;
+	private JFrame frame = null;
+	private String masterySet = null;
 	
 	public static MasteryLearning getInstance(){
 		if(instance == null)
@@ -49,112 +54,112 @@ public class MasteryLearning {
 	
 	public void displayPanel(){
 		/* Frame set */
-		final JFrame frame = new JFrame("Mastery Setting");
-		frame.setSize(580, 400);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(false);
-		
-		/* Panel set */
-		JPanel leftPanel = new JPanel();
-		final JPanel groupPanel = new JPanel();
-		JPanel listPanel = new JPanel();
-		JPanel btnPanel = new JPanel();
-		
-		
-		JScrollPane scrollPane = new JScrollPane(groupPanel);
-		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollPane.setPreferredSize(new Dimension(380, 320));
-
-		groupPanel.setLayout(new BoxLayout(groupPanel, BoxLayout.Y_AXIS));
-
-		leftPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-
-		scrollPane.setBorder(new CompoundBorder(new EmptyBorder(10, 10, 0, 10), BorderFactory.createTitledBorder("Group Set")));
-		listPanel.setBorder(new CompoundBorder(new EmptyBorder(10, 10, 10, 10), BorderFactory.createTitledBorder("List")));
-		btnPanel.setBorder(new EmptyBorder(0, 10, 20, 7));
-		leftPanel.add(scrollPane);
-		leftPanel.add(btnPanel);
-		
-		/* JTextField set */
-		final DefaultListModel model = new DefaultListModel();
-		JList list = new JList(model);
-		list.setFont(new Font("Verdana", Font.BOLD, 20));
-		JScrollPane _listPanel = new JScrollPane(list);
-		_listPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		_listPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		_listPanel.setPreferredSize(new Dimension(140, 310));
-		listPanel.add(_listPanel);
-
-		for (int i = 0; i < 10; i++)
-			model.addElement("Element" + i);
+		if(frame != null)
+			frame.setVisible(true);
+		else {
+			frame = new JFrame("Mastery Learning");
+			frame.setSize(580, 400);
+			//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setResizable(false);
+			
+			/* Panel set */
+			JPanel leftPanel = new JPanel();
+			final JPanel groupPanel = new JPanel();
+			JPanel listPanel = new JPanel();
+			JPanel btnPanel = new JPanel();
 			
 			
-		list.setDragEnabled(true);
-		list.setTransferHandler(new TextFieldHanlder());
+			JScrollPane scrollPane = new JScrollPane(groupPanel);
+			scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+			scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			scrollPane.setPreferredSize(new Dimension(380, 320));
 
-		/* JButton set */
-		JButton newGroup = new JButton("New Group");
-		JButton finish = new JButton("Finish");
+			groupPanel.setLayout(new BoxLayout(groupPanel, BoxLayout.Y_AXIS));
 
-		btnPanel.add(newGroup);
-		btnPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-		btnPanel.add(finish);
+			leftPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
-		/* button actionListener set */
-		newGroup.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				groupPanel.add(newGroupPnl(textList.size() + 1));
-				groupPanel.revalidate();
+			scrollPane.setBorder(new CompoundBorder(new EmptyBorder(10, 10, 0, 10), BorderFactory.createTitledBorder("Group Set")));
+			listPanel.setBorder(new CompoundBorder(new EmptyBorder(10, 10, 10, 10), BorderFactory.createTitledBorder("List")));
+			btnPanel.setBorder(new EmptyBorder(0, 10, 20, 7));
+			leftPanel.add(scrollPane);
+			leftPanel.add(btnPanel);
+			
+			/* JTextField set */
+			final DefaultListModel model = new DefaultListModel();
+			JList list = new JList(model);
+			list.setFont(new Font("Verdana", Font.BOLD, 20));
+			JScrollPane _listPanel = new JScrollPane(list);
+			_listPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+			_listPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			_listPanel.setPreferredSize(new Dimension(140, 310));
+			listPanel.add(_listPanel);
+
+			int c = 1;
+			for (XTask xtask : ProjectEnvironment.getInstance().getActiveProject().getTasks()) {
+				model.addElement(String.valueOf(c).concat(" - ").concat(xtask.getProperty("ExName")));
+				c++;
 			}
-		});
-		finish.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-//			System.out.println("Finish");
-						
-				JSONObject obj = new JSONObject();
-//				Map<Integer, String> map = new HashMap<Integer, String>();
-						
-				if(textList.size() != 0) {
-					for(int i = 0; i < textList.size(); i++){
-	//				System.out.println(textList.get(i).getText());
-						if(!textList.get(i).getText().equals(""))
-							obj.put(i + 1, textList.get(i).getText());
-					}
-					obj.put("isPass", true);
+				
+				
+			list.setDragEnabled(true);
+			list.setTransferHandler(new TextFieldHanlder());
+
+			/* JButton set */
+			JButton newGroup = new JButton("New Group");
+			JButton finish = new JButton("Finish");
+
+			btnPanel.add(newGroup);
+			btnPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+			btnPanel.add(finish);
+
+			/* button actionListener set */
+			newGroup.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					groupPanel.add(newGroupPnl(textList.size() + 1));
+					groupPanel.revalidate();
+				}
+			});
+			finish.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+	
+					JSONObject obj = new JSONObject();
+	//				Map<Integer, String> map = new HashMap<Integer, String>();
 							
-					if(!obj.isEmpty()) {
-						System.out.println(obj.toString());
-							
-						JSONParser parser = new JSONParser();
-						JSONObject _get = new JSONObject();
-								
-						try{
-							_get = (JSONObject) parser.parse(obj.toString());
-							System.out.println(_get.get("isPass"));
-							System.out.println(_get.size());
-						} catch (ParseException e) {
-							// TODO: handle exception
+					if(textList.size() != 0) {
+						for(int i = 0; i < textList.size(); i++){
+							if(!textList.get(i).getText().equals(""))
+								obj.put(i + 1, textList.get(i).getText());
 						}
-					} else {
-						System.out.println("NULL input.");
-					}
+						//obj.put("isPass", true);
+								
+						if(!obj.isEmpty()) {
+							// set instance (masterySet)
+							//masterySet = obj.toString();
+							setMasterySet(obj.toString());
 							
-				} else {
-					System.out.println("NULL textField.");
-				}						
-				frame.setVisible(false);
-			}
-		});
+							XProject project = ProjectEnvironment.getInstance().getActiveProject();
+							project.setProperty("hasMastery", "true");
+						} else {
+							XProject project = ProjectEnvironment.getInstance().getActiveProject();
+							project.setProperty("hasMastery", "false");
+						}
+								
+					} else {
+						//System.out.println("NULL textField.");
+					}						
+					frame.setVisible(false);
+				}
+			});
 
-		/* JSplitPane set */
-		JSplitPane splitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, listPanel);
-		splitPanel.setOneTouchExpandable(false);
-		splitPanel.setDividerLocation(380);
-		frame.add(splitPanel);
-		frame.setVisible(true);
+			/* JSplitPane set */
+			JSplitPane splitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, listPanel);
+			splitPanel.setOneTouchExpandable(false);
+			splitPanel.setDividerLocation(380);
+			frame.add(splitPanel);
+			frame.setVisible(true);
+		}
 	}
 	 
 	private JPanel newGroupPnl(int groupId) {
@@ -177,6 +182,13 @@ public class MasteryLearning {
 						+ String.valueOf(groupId))));
 		return _return;
 	}
-	 
+	
+	private void setMasterySet(String masterySet){
+		this.masterySet = masterySet;
+	}
+	
+	public String getMasterySet() {
+		return this.masterySet;
+	}
 	 
 }

@@ -487,6 +487,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		
 		new Thread(new ProjectUploader()).start();
 		new Thread(new SaveGradeSet()).start();
+		new Thread(new SaveMasterySet()).start();
 	}
 
 	/**
@@ -972,6 +973,23 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 				}
 			}
 				
+		}
+	}
+	
+	class SaveMasterySet implements Runnable {
+		public void run() {
+			XProject project = env.getActiveProject();
+			if(project.getProperty("hasMastery").equalsIgnoreCase("true")) {
+				Thread thread = mm.saveMasterySet(MasteryLearning.getInstance().getMasterySet());
+				while (thread.isAlive()) {
+					console.print(".");
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException ex) {
+
+					}
+				}
+			}
 		}
 	}
 	

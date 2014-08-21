@@ -264,6 +264,15 @@ public class MessageManager {
 		return result;
 	}
 	
+	public Thread saveMasterySet(Object masterySet){
+		Properties props = new Properties();
+		props.setProperty("masterySet", String.valueOf(masterySet));
+		
+		Thread result = new Thread(new ServerRequestRunner("saveMasterySet", props));
+		result.start();
+		return result;
+	}
+	
 	public String getGrade(Object classId, Object courseId, Object lessonId, Object userId){
 		Properties props = new Properties();
 		
