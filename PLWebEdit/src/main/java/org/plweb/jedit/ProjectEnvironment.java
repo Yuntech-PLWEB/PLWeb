@@ -19,7 +19,7 @@ public class ProjectEnvironment {
 	private String requestUrl = System.getProperty("javaws.plweb.urlrequest");
 	private String explorer = System.getProperty("javaws.plweb.explorer");
 	private String shell = System.getProperty("javaws.plweb.shell");
-	private String urlgrade = System.getProperty("javaws.plweb.urlgrade");
+	private String dataUrl = System.getProperty("javaws.plweb.urlDataSetting");
 	
 	private String department = System.getProperty("javaws.plweb.department");
 	private String enrollment = System.getProperty("javaws.plweb.enrollment");
@@ -184,8 +184,8 @@ public class ProjectEnvironment {
 		return shell;
 	}
 
-	public String getUrlGrade(){
-		return urlgrade;
+	public String getDataUrl(){
+		return dataUrl;
 	}
 	
 	public String[] getShell(String command) {

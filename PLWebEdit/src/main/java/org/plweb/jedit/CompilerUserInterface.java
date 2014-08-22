@@ -205,6 +205,13 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			
 		}
 		
+		// check if project has Mastery set & get
+		if((project.getPropertyEx("hasMastery") != null && project.getPropertyEx("hasMastery").equals("true")) && env.getLessonMode().equals("author")){
+			String _masteryString = mm.getMasterySet(env.getCourseId(), env.getLessonId());
+			MasteryLearningSet.getInstance().setMasterySet(_masteryString);
+				
+		}
+		
 		/*
 		 * First Time reload
 		 */
@@ -317,9 +324,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			}	
 		} else if (cmd.equals("masteryLearning.edit")){
 		
-			MasteryLearning.getInstance().displayPanel();
-			
-			
+			MasteryLearningSet.getInstance().displayPanel();
 			
 		} else if (cmd.equals("task.reset")) {
 			//從 .part 載入
@@ -980,7 +985,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		public void run() {
 			XProject project = env.getActiveProject();
 			if(project.getProperty("hasMastery").equalsIgnoreCase("true")) {
-				Thread thread = mm.saveMasterySet(MasteryLearning.getInstance().getMasterySet());
+				Thread thread = mm.saveMasterySet(MasteryLearningSet.getInstance().getMasterySet());
 				while (thread.isAlive()) {
 					console.print(".");
 					try {

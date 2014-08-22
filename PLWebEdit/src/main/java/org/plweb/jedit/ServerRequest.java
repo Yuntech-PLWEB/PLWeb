@@ -44,7 +44,7 @@ public class ServerRequest {
 	
 	private Boolean urlFlag = false;
 	
-	public void setGradeFlag(){
+	public void setFlag(){
 		urlFlag = true;
 	}
 
@@ -73,7 +73,7 @@ public class ServerRequest {
 			// Send data
 			String url;
 			if(urlFlag)
-				url = env.getUrlGrade();
+				url = env.getDataUrl();
 			else
 				url = env.getRequestUrl();
 			URLConnection conn = new URL(url).openConnection();

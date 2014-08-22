@@ -273,6 +273,27 @@ public class MessageManager {
 		return result;
 	}
 	
+	public String getMasterySet(Object courseId, Object lessonId){
+		Properties props = new Properties();
+		
+		props.setProperty("courseId", String.valueOf(courseId));
+		props.setProperty("lessonId", String.valueOf(lessonId));
+		
+		ServerRequest request = new ServerRequest("getMasterySet", props);
+		request.setFlag();
+		queue1.offer(request);
+		
+		while(request.isFinished() == false){
+			try {
+					Thread.sleep(500);
+			} catch (InterruptedException ex) {
+
+			}
+		}
+		
+		return request.getResponse();	
+	}
+	
 	public String getGrade(Object classId, Object courseId, Object lessonId, Object userId){
 		Properties props = new Properties();
 		
@@ -282,7 +303,7 @@ public class MessageManager {
 		props.setProperty("userId", String.valueOf(userId));
 		
 		ServerRequest request = new ServerRequest("init", props);
-		request.setGradeFlag(); // set use grade url.
+		request.setFlag(); // set use grade url.
 		queue1.offer(request);
 		
 		while(request.isFinished() == false){
@@ -306,7 +327,7 @@ public class MessageManager {
 		props.setProperty("grade", String.valueOf(grade));
 		
 		ServerRequest request = new ServerRequest("saveGrade", props);
-		request.setGradeFlag(); // set use grade url.
+		request.setFlag(); // set use grade url.
 		queue1.offer(request);
 	}
 	
