@@ -38,6 +38,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 
 import org.gjt.sp.jedit.Buffer;
 import org.gjt.sp.jedit.GUIUtilities;
@@ -74,6 +75,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	private Boolean isInterrupt = false;
 	private Encryption fileEncrypt;
 	
+	private int idx;
 	
 
 	public CompilerUserInterface() throws Exception {
@@ -96,11 +98,17 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			modes = new String[] { env.getLessonMode() };
 		}
 
+		
 		tb1 = new JToolBar();
 		tb1.setFloatable(false);
-		tb1.add(createButton("上一題", "control_rewind.png", "task.previous", false));
-		tb1.add(comboTask = createComboBox(tasks, "task.select"));
-		tb1.add(createButton("下一題", "control_fastforward.png", "task.next", false));
+		if(env.getLessonMode().equals("student") && (env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true"))){
+			JLabel label = new JLabel("test");
+			tb1.add(label);
+		} else {
+			tb1.add(createButton("上一題", "control_rewind.png", "task.previous", false));
+			tb1.add(comboTask = createComboBox(tasks, "task.select"));
+			tb1.add(createButton("下一題", "control_fastforward.png", "task.next", false));
+		}
 		
 		JToolBar tb2 = new JToolBar();
 		tb2.setFloatable(false);
@@ -215,7 +223,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		/*
 		 * First Time reload
 		 */
-		refreshTaskComboBox();
+		 if(env.getLessonMode().equals("author") || (env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("false")) || env.getActiveProject().getPropertyEx("hasMastery") == null)
+			refreshTaskComboBox();
 		reloadTask();
 	}
 	
@@ -289,19 +298,22 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		} else if (cmd.equals("task.reload")) {
 			reloadTask();
 		} else if (cmd.equals("task.previous")) {
-			int idx = comboTask.getSelectedIndex();
+			//int idx = comboTask.getSelectedIndex();
+			setIndex();
 			if (idx > 0) {
 				comboTask.setSelectedIndex(idx - 1);
 			}
 			reloadTask();
 		} else if (cmd.equals("task.next")) {
-			int idx = comboTask.getSelectedIndex();
+			//int idx = comboTask.getSelectedIndex();
+			setIndex();
 			if (idx + 1 < comboTask.getItemCount()) {
 				comboTask.setSelectedIndex(idx + 1);
 			}
 			reloadTask();
 		} else if (cmd.equals("task.edit")) {
-			int idx = comboTask.getSelectedIndex();
+			//int idx = comboTask.getSelectedIndex();
+			setIndex();
 			if (idx >= 0) {
 				XTask task = env.getActiveProject().getTasks().get(idx);
 				if (task != null) {
@@ -329,7 +341,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		} else if (cmd.equals("task.reset")) {
 			//從 .part 載入
 			//System.out.println("task.reset!!");
-			int idx = comboTask.getSelectedIndex();
+			//int idx = comboTask.getSelectedIndex();
+			setIndex();
 			if (idx >= 0) {
 				XProject project = env.getActiveProject();
 				XTask task = project.getTasks().get(idx);
@@ -500,7 +513,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	 */
 	private void upTask() {
 		XProject actProject = env.getActiveProject();
-		int idx = comboTask.getSelectedIndex();
+		//int idx = comboTask.getSelectedIndex();
+		setIndex();
 		if (idx > 0) {
 			XTask task = actProject.getTask(idx);
 
@@ -520,7 +534,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	 */
 	private void downTask() {
 		XProject actProject = env.getActiveProject();
-		int idx = comboTask.getSelectedIndex();
+		//int idx = comboTask.getSelectedIndex();
+		setIndex();
 		if (idx < comboTask.getItemCount()) {
 			XTask task = actProject.getTask(idx + 1);
 
@@ -548,7 +563,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		newTask.setId(String.valueOf(taskCount));
 		newTask.setTitle("New Task");
 
-		int idx = comboTask.getSelectedIndex();
+		//int idx = comboTask.getSelectedIndex();
+		setIndex();
 		if (project.getTasks().size() > 0 && idx >= 0) {
 			XTask srcTask = env.getActiveProject().getTask(idx);
 			if (srcTask != null) {
@@ -586,7 +602,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	 * Remove Specified Task
 	 */
 	private void delTask() {
-		int idx = comboTask.getSelectedIndex();
+		//int idx = comboTask.getSelectedIndex();
+		setIndex();
 		if (idx >= 0) {
 			env.getActiveProject().removeTask(idx);
 		}
@@ -613,8 +630,17 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		refreshTaskComboBox(false);
 	}
 
+	private void setIndex(){
+		if(env.getLessonMode().equals("student") && (env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true"))){
+			idx = 1;
+		} else {
+			idx = comboTask.getSelectedIndex();
+		}
+	}
+	
 	public void refreshTaskComboBox(boolean keepIdx) {
-		int idx = comboTask.getSelectedIndex();
+		//int idx = comboTask.getSelectedIndex();
+		setIndex();
 		comboTask.removeActionListener(this);
 		comboTask.removeAllItems();
 		int c = 1;
@@ -671,7 +697,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		View actView = jEdit.getActiveView();
 		jEdit.closeAllBuffers(actView);
 
-		int idx = comboTask.getSelectedIndex();
+		//int idx = comboTask.getSelectedIndex();
+		setIndex();
 		XTask task = project.getTask(idx);
 
 		if (task == null) {
