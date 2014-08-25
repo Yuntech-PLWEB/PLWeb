@@ -75,5 +75,84 @@ switch(action){
 		
 		
 		break;
+		
+	case 'getStuMastery':
+	
+		allAvgTime = """ SELECT QUESTION_ID, AVG(TIME_USED) as AVG FROM ST_REPORTS WHERE COURSE_ID=? AND LESSON_ID=? GROUP BY QUESTION_ID """
+        /* get last year */
+        lastAvgTime = """ SELECT QUESTION_ID, AVG(TIME_USED) as AVG FROM ST_REPORTS, CLASS_COURSE WHERE ST_REPORTS.CLASS_ID=CLASS_COURSE.CLASS_ID AND ST_REPORTS.COURSE_ID=? AND ST_REPORTS.LESSON_ID=? AND CLASS_COURSE.BEGINDATE>? GROUP BY QUESTION_ID """
+
+        try {
+			Date tmp = new Date("1/1/" + String.valueOf(Calendar.getInstance().get(Calendar.YEAR) - 1))
+            Calendar cal = Calendar.getInstance()
+            cal.setTime(tmp);
+            long millis = cal.getTimeInMillis()
+
+
+            JSONObject _return = new JSONObject()
+            JSONObject masteryTime = new JSONObject()
+            JSONObject stuRecord = new JSONObject()
+
+            lastAvgTimeRows = sql.rows(lastAvgTime, [courseId, lessonId, millis])
+            allAvgTimeRows = sql.rows(allAvgTime, [courseId, lessonId])
+
+
+
+            int x = 2
+            if((lastAvgTimeRows.size() == 0 && allAvgTimeRows.size() > 0) || (lastAvgTimeRows.size() > 0 && allAvgTimeRows.size() == 0))
+                x = 1
+            else if(lastAvgTimeRows.size() == 0 && allAvgTimeRows.size() == 0)
+                x = 0
+
+            for(i = 0; i < allAvgTimeRows.size(); i++){
+
+                if(lastAvgTimeRows.AVG[i] == null)
+                    lastAvg = 0
+                else
+                    lastAvg = (int)lastAvgTimeRows.AVG[i]
+                if(allAvgTimeRows.AVG[i] == null)
+                    allAvg = 0
+                else
+                    allAvg = (int)allAvgTimeRows.AVG[i]
+
+                masteryTime.put(allAvgTimeRows.QUESTION_ID[i], (int)((lastAvg + allAvg)/x/1000));
+            }
+
+            _return.put("MasteryTime", masteryTime)
+
+            checkSql = """ SELECT MASTERY_GRADE FROM ST_MASTERY WHERE CLASS_ID=? AND COURSE_ID=? AND LESSON_ID=? AND USER_ID=? """
+            row = sql.firstRow(checkSql, [classId, courseId, lessonId, userId])
+            if(!row.equals(null)){
+                _return.put("stuRecord", row.MASTERY_GRADE)
+            } else {
+                getMastery = """ SELECT MASTERY_SETTING FROM MASTERY_SETTING WHERE COURSE_ID=? AND LESSON_ID=? """
+                row = sql.firstRow(getMastery, [courseId, lessonId])
+
+                JSONParser parser = new JSONParser()
+                JSONObject _masterySet = (JSONObject) parser.parse(row.MASTERY_SETTING)
+
+
+                for(i = 1; i <= _masterySet.size(); i++){
+                    tmpString = _masterySet.get(String.valueOf(i))
+                    String[] tmpArray = tmpString.split(", ")
+                    JSONObject content = new JSONObject()
+                    for(j = 0; j < tmpArray.size(); j++){
+                        content.put(tmpArray[j], false)
+                    }
+                    content.put("isPass", false)
+                    stuRecord.put(i, new JSONObject(content))
+                }
+                _return.put("stuRecord", stuRecord)
+                insertMasterySet = """ INSERT INTO ST_MASTERY(CLASS_ID, COURSE_ID, LESSON_ID, USER_ID, MASTERY_GRADE) VALUES(?, ?, ?, ?, ?) """
+                sql.executeInsert(insertMasterySet, [classId, courseId, lessonId, userId, stuRecord.toString()])
+            }
+
+            print _return.toString()
+            } catch(e){
+			} catch(ParseException e){
+            }
+		break;
+		
+		
 }
 sql.close()

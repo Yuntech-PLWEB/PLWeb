@@ -294,6 +294,29 @@ public class MessageManager {
 		return request.getResponse();	
 	}
 	
+	public String getStuMastery(Object classId, Object courseId, Object lessonId, Object userId){
+		Properties props = new Properties();
+		
+		props.setProperty("courseId", String.valueOf(courseId));
+		props.setProperty("lessonId", String.valueOf(lessonId));
+		props.setProperty("classId", String.valueOf(classId));
+		props.setProperty("userId", String.valueOf(userId));
+		
+		ServerRequest request = new ServerRequest("getStuMastery", props);
+		request.setFlag();
+		queue1.offer(request);
+		
+		while(request.isFinished() == false){
+			try {
+					Thread.sleep(500);
+			} catch (InterruptedException ex) {
+
+			}
+		}
+		
+		return request.getResponse();
+	}
+	
 	public String getGrade(Object classId, Object courseId, Object lessonId, Object userId){
 		Properties props = new Properties();
 		

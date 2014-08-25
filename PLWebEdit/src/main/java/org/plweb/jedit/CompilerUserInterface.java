@@ -76,6 +76,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	private Encryption fileEncrypt;
 	
 	private int idx;
+	private JLabel toolLabel;
 	
 
 	public CompilerUserInterface() throws Exception {
@@ -102,8 +103,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		tb1 = new JToolBar();
 		tb1.setFloatable(false);
 		if(env.getLessonMode().equals("student") && (env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true"))){
-			JLabel label = new JLabel("test");
-			tb1.add(label);
+			toolLabel = new JLabel("test");
+			tb1.add(toolLabel);
 		} else {
 			tb1.add(createButton("上一題", "control_rewind.png", "task.previous", false));
 			tb1.add(comboTask = createComboBox(tasks, "task.select"));
@@ -217,7 +218,9 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		if((project.getPropertyEx("hasMastery") != null && project.getPropertyEx("hasMastery").equals("true")) && env.getLessonMode().equals("author")){
 			String _masteryString = mm.getMasterySet(env.getCourseId(), env.getLessonId());
 			MasteryLearningSet.getInstance().setMasterySet(_masteryString);
-				
+		} else if((project.getPropertyEx("hasMastery") != null && project.getPropertyEx("hasMastery").equals("true")) && env.getLessonMode().equals("student")) {
+			//String _stuMastery = mm.getStuMastery(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId());
+			///////////////////////////////////////////////
 		}
 		
 		/*
