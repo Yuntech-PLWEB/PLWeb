@@ -67,6 +67,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 
 	private BufferChangeListener bcl = BufferChangeListener.getInstance();
 	
+	private MasteryCore masteryCore;
+	
 	private JToolBar tb1;
 	private Boolean isSubmit[];
 	private JToolBar tb2ForSubmit;
@@ -221,6 +223,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		} else if((project.getPropertyEx("hasMastery") != null && project.getPropertyEx("hasMastery").equals("true")) && env.getLessonMode().equals("student")) {
 			//String _stuMastery = mm.getStuMastery(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId());
 			///////////////////////////////////////////////
+			masteryCore = MasteryCore.getInstance(mm.getStuMastery(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId()));
+			
 		}
 		
 		/*
@@ -635,7 +639,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 
 	private void setIndex(){
 		if(env.getLessonMode().equals("student") && (env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true"))){
-			idx = 1;
+			idx = masteryCore.getCurrentIdx();
 		} else {
 			idx = comboTask.getSelectedIndex();
 		}

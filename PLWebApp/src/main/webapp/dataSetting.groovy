@@ -88,15 +88,12 @@ switch(action){
             cal.setTime(tmp);
             long millis = cal.getTimeInMillis()
 
-
             JSONObject _return = new JSONObject()
             JSONObject masteryTime = new JSONObject()
             JSONObject stuRecord = new JSONObject()
 
             lastAvgTimeRows = sql.rows(lastAvgTime, [courseId, lessonId, millis])
             allAvgTimeRows = sql.rows(allAvgTime, [courseId, lessonId])
-
-
 
             int x = 2
             if((lastAvgTimeRows.size() == 0 && allAvgTimeRows.size() > 0) || (lastAvgTimeRows.size() > 0 && allAvgTimeRows.size() == 0))
@@ -118,28 +115,30 @@ switch(action){
                 masteryTime.put(allAvgTimeRows.QUESTION_ID[i], (int)((lastAvg + allAvg)/x/1000));
             }
 
-            _return.put("MasteryTime", masteryTime)
+            if(masteryTime.size() > 0)
+                _return.put("MasteryTime", masteryTime)
+            else
+                _return.put("MasteryTime", "false")
 
             checkSql = """ SELECT MASTERY_GRADE FROM ST_MASTERY WHERE CLASS_ID=? AND COURSE_ID=? AND LESSON_ID=? AND USER_ID=? """
             row = sql.firstRow(checkSql, [classId, courseId, lessonId, userId])
+            getMastery = """ SELECT MASTERY_SETTING FROM MASTERY_SETTING WHERE COURSE_ID=? AND LESSON_ID=? """
+            _row = sql.firstRow(getMastery, [courseId, lessonId])
+            JSONParser parser = new JSONParser()
+            _return.put("seq", (JSONObject) parser.parse(_row.MASTERY_SETTING))
             if(!row.equals(null)){
-                _return.put("stuRecord", row.MASTERY_GRADE)
+                _return.put("stuRecord", (JSONObject) parser.parse(row.MASTERY_GRADE))
             } else {
-                getMastery = """ SELECT MASTERY_SETTING FROM MASTERY_SETTING WHERE COURSE_ID=? AND LESSON_ID=? """
-                row = sql.firstRow(getMastery, [courseId, lessonId])
-
-                JSONParser parser = new JSONParser()
-                JSONObject _masterySet = (JSONObject) parser.parse(row.MASTERY_SETTING)
-
+                JSONObject _masterySet = (JSONObject) parser.parse(_row.MASTERY_SETTING)
 
                 for(i = 1; i <= _masterySet.size(); i++){
                     tmpString = _masterySet.get(String.valueOf(i))
                     String[] tmpArray = tmpString.split(", ")
                     JSONObject content = new JSONObject()
                     for(j = 0; j < tmpArray.size(); j++){
-                        content.put(tmpArray[j], false)
+                        content.put(tmpArray[j], "false")
                     }
-                    content.put("isPass", false)
+                    content.put("isPass", "false")
                     stuRecord.put(i, new JSONObject(content))
                 }
                 _return.put("stuRecord", stuRecord)
@@ -149,7 +148,7 @@ switch(action){
 
             print _return.toString()
             } catch(e){
-			} catch(ParseException e){
+                        } catch(ParseException e){
             }
 		break;
 		

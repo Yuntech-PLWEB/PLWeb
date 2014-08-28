@@ -307,6 +307,7 @@ and LESSON_ID=?
 		q1 = """ SELECT COUNT(*) as cc FROM MASTERY_SETTING WHERE COURSE_ID=? AND LESSON_ID=? """
 		q2 = """ INSERT INTO MASTERY_SETTING(COURSE_ID, LESSON_ID, MASTERY_SETTING) VALUES(?, ?, ?) """
 		q3 = """ UPDATE MASTERY_SETTING SET MASTERY_SETTING=? WHERE COURSE_ID=? AND LESSON_ID=? """
+		q4 = """ DELETE FROM ST_MASTERY WHERE COURSE_ID=? AND LESSON_ID=? """
 		
 		try {
 			cc = sql.firstRow(q1, [course_id, lesson_id]).cc
@@ -321,7 +322,7 @@ and LESSON_ID=?
 			println e.message
 		}
 		
-		
+		 sql.execute(q4, [course_id, lesson_id])
 		
 		
 		break;
