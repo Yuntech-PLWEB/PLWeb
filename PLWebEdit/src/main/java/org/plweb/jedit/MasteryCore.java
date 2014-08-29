@@ -1,11 +1,15 @@
+package org.plweb.jedit;
+
+import java.util.Scanner;
+import javax.swing.JOptionPane;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 public class MasteryCore {
 	private static MasteryCore instance = null;
-	private MessageManager mm = MessageManager.getInstance();
-	private ProjectEnvironment env = ProjectEnvironment.getInstance();
+	//private MessageManager mm = MessageManager.getInstance();
+	//private ProjectEnvironment env = ProjectEnvironment.getInstance();
 
 	private JSONObject stuRecord = null;
 	private JSONObject masteryTime = null;
@@ -14,9 +18,9 @@ public class MasteryCore {
 	private Boolean noneMasteryTime = false;
 	private int currentGroup = 0;
 
-	public static MasteryCore getInstance(String masteryString) {
+	public static MasteryCore getInstance() {
 		if (instance == null)
-			return instance = new MasteryCore(masteryString);
+			return instance = new MasteryCore("{\"seq\":{\"2\":\"2, 5\",\"1\":\"1, 4, 3\"},\"stuRecord\":{\"2\":{\"2\":\"false\",\"5\":\"false\",\"isPass\":\"false\"},\"1\":{, \"3\":\"false\",\"1\":\"false\",\"4\":\"false\",\"isPass\":\"false\"}},\"MasteryTime\":{\"2\":166,\"3\":131,\"4\":111,\"7\":161,\"8\":151}}");
 		else
 			return instance;
 	}
@@ -55,34 +59,64 @@ public class MasteryCore {
 				System.out.println();
 			}
 			
+			Scanner scanner = new Scanner(System.in);
+			
 			System.out.println(" #### " + stuRecord.toString());
 			System.out.println("currentIndex " + getCurrentIdx());
 			System.out.println("-----------------------------------------------------");
-			compare(3, 10000000, "test_ok");
-			System.out.println(stuRecord.toString());
+			compare(2, 10000000, "test_error");
+			System.out.println("1111currentGroup " + currentGroup);
 			System.out.println("currentIndex " + getCurrentIdx());
-			System.out.println("111111111currentGroup" + currentGroup);
-			//System.out.println(stuRecord.toString());
+			System.out.println(stuRecord.toString());
+			System.out.println("-----------------------!-----------------------------");
+			
+			scanner.nextInt();
+			
+			compare(2, 10000, "test_ok");
+			System.out.println("2222currentGroup " + currentGroup);
+			System.out.println("currentIndex " + getCurrentIdx());
+			System.out.println(stuRecord.toString());
+			System.out.println("-----------------------!-----------------------------");
+			
+			scanner.nextInt();
+			
+			compare(7, 10000000, "test_ok");
+			System.out.println("3333currentGroup " + currentGroup);
+			System.out.println("currentIndex " + getCurrentIdx());
+			System.out.println(stuRecord.toString());
 			System.out.println("-----------------------------------------------------");
-			compare(2, 3000, "test_ok");
-			System.out.println(stuRecord.toString());
+			
+			scanner.nextInt();
+			
+			compare(4, 10000000, "test_ok");
+			System.out.println("4444currentGroup " + currentGroup);
 			System.out.println("currentIndex " + getCurrentIdx());
-			System.out.println("2222222222currentGroup" + currentGroup);
-			//System.out.println(stuRecord.toString());
+			System.out.println(stuRecord.toString());
 			System.out.println("-----------------------------------------------------");
-			compare(2, 3000, "test_ok");
-			System.out.println(stuRecord.toString());
+			
+			scanner.nextInt();
+			
+			
+			compare(4, 10000000, "test_ok");
+			System.out.println("5555currentGroup " + currentGroup);
 			System.out.println("currentIndex " + getCurrentIdx());
-			System.out.println("2222222222currentGroup" + currentGroup);
+			System.out.println(stuRecord.toString());
 			System.out.println("-----------------------------------------------------");
-			compare(2, 3000, "test_ok");
-			System.out.println(stuRecord.toString());
+			
+			scanner.nextInt();
+			
+			
+			compare(4, 1000, "test_ok");
+			System.out.println("5555currentGroup " + currentGroup);
 			System.out.println("currentIndex " + getCurrentIdx());
-			System.out.println("2222222222currentGroup" + currentGroup);
 			System.out.println(stuRecord.toString());
-			//System.out.println(stuRecord.toString());
+			System.out.println("-----------------------------------------------------");
+			
+			scanner.nextInt();
+			
+			
+			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -144,13 +178,59 @@ public class MasteryCore {
 				}
 			
 				
-				
 			}
 		} else if((int)(timeUsed/1000) > compareTime){
 			if(status.equalsIgnoreCase("test_ok")){
-				// 
+				((JSONObject)stuRecord.get(String.valueOf(currentGroup + 1))).put(String.valueOf(currentIndex), "true");
+				Boolean changeGroup = true;
+				Boolean allTrue = true;
+				int tmp = 0;
+				if(currentIndex != questionSeq[currentGroup].length - 1){
+					for(int i = 0; i < questionSeq[currentGroup].length; i++){
+						if(currentIndex == questionSeq[currentGroup][i]){
+							tmp = i;
+							for(int j = i; j < questionSeq[currentGroup].length; j++){
+								if( ((JSONObject) stuRecord.get(String.valueOf(currentGroup + 1))).get(String.valueOf(questionSeq[currentGroup][j])).equals("false") ){
+									((JSONObject)stuRecord.get(String.valueOf(currentGroup + 1))).put("currentIndex", String.valueOf(questionSeq[currentGroup][j]));
+									allTrue = false;
+									changeGroup = false;
+									break;
+								}
+							}
+							break;
+						}
+					}
+				}
+				if(allTrue){
+					for(int j = tmp; j >=0; j--){
+						if( ((JSONObject) stuRecord.get(String.valueOf(currentGroup + 1))).get(String.valueOf(questionSeq[currentGroup][j])).equals("false") ){
+							((JSONObject)stuRecord.get(String.valueOf(currentGroup + 1))).put("currentIndex", String.valueOf(questionSeq[currentGroup][j]));
+							changeGroup = false;
+							break;
+						}
+					}
+				}
+				if(changeGroup)
+					changeNextGroup();
+				
 			} else {
 				// confirm ui to change task
+				int dialogResult = 0;
+				for(int i = 0; i < questionSeq[currentGroup].length; i++){
+					if(questionSeq[currentGroup][i] == currentIndex && i != questionSeq[currentGroup].length - 1){
+						for(int j = i + 1; j < questionSeq[currentGroup].length; j++){
+							System.out.println(currentGroup + "  " + questionSeq[currentGroup][j]);
+							if( ((JSONObject) stuRecord.get(String.valueOf(currentGroup + 1))).get(String.valueOf(questionSeq[currentGroup][j])).equals("false")){
+								dialogResult = JOptionPane.showConfirmDialog(null, "更換較簡單的題目？", "Change Task", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+								if(dialogResult == JOptionPane.YES_OPTION){
+									((JSONObject)stuRecord.get(String.valueOf(currentGroup + 1))).put("currentIndex", String.valueOf(questionSeq[currentGroup][j]));
+								}
+								break;
+							}
+						}
+						break;
+					}
+				}
 			}
 		}
 		return false;
@@ -159,6 +239,7 @@ public class MasteryCore {
 	private void changeNextGroup(){
 		((JSONObject)stuRecord.get(String.valueOf(currentGroup + 1))).put(String.valueOf(currentIndex), "true");
 		((JSONObject)stuRecord.get(String.valueOf(currentGroup + 1))).put("isPass", "true");
+		currentGroup++;
 		// upload masterySet
 	}
 	
@@ -168,4 +249,3 @@ public class MasteryCore {
 		// upload masterySet
 	}
 }
-
