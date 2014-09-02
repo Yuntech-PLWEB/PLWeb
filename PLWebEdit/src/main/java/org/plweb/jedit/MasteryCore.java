@@ -6,10 +6,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+
 public class MasteryCore {
 	private static MasteryCore instance = null;
-	//private MessageManager mm = MessageManager.getInstance();
-	//private ProjectEnvironment env = ProjectEnvironment.getInstance();
+	private static MessageManager mm = MessageManager.getInstance();
+	private static ProjectEnvironment env = ProjectEnvironment.getInstance();
 
 	private JSONObject stuRecord = null;
 	private JSONObject masteryTime = null;
@@ -17,11 +18,14 @@ public class MasteryCore {
 	private int currentIndex = 0;
 	private Boolean noneMasteryTime = false;
 	private int currentGroup = 0;
+	private int tmpIndex = 0;
+	private Boolean isDialog = false;
 
 	public static MasteryCore getInstance() {
-		if (instance == null)
-			return instance = new MasteryCore("{\"seq\":{\"2\":\"2, 5\",\"1\":\"1, 4, 3\"},\"stuRecord\":{\"2\":{\"2\":\"false\",\"5\":\"false\",\"isPass\":\"false\"},\"1\":{, \"3\":\"false\",\"1\":\"false\",\"4\":\"false\",\"isPass\":\"false\"}},\"MasteryTime\":{\"2\":166,\"3\":131,\"4\":111,\"7\":161,\"8\":151}}");
-		else
+		if (instance == null) {
+			String masteryString = mm.getStuMastery(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId());
+			return instance = new MasteryCore(masteryString);
+		} else
 			return instance;
 	}
 
@@ -39,10 +43,6 @@ public class MasteryCore {
 			else
 				noneMasteryTime = true;
 			
-//			System.out.println(stuRecord.toString());
-//			System.out.println(masteryTime.toString());
-			
-			
 			questionSeq = new int[stuRecord.size()][];
 			for(int i = 1; i <= ((JSONObject)tmp.get("seq")).size(); i++ ){
 				String[] _tmp = ((JSONObject)tmp.get("seq")).get(String.valueOf(i)).toString().split(", ");
@@ -53,69 +53,6 @@ public class MasteryCore {
 			}
 			
 			
-			for(int i = 0; i < questionSeq.length; i++){
-				for(int j = 0; j < questionSeq[i].length; j++)
-					System.out.println(questionSeq[i][j]);
-				System.out.println();
-			}
-			
-			Scanner scanner = new Scanner(System.in);
-			
-			System.out.println(" #### " + stuRecord.toString());
-			System.out.println("currentIndex " + getCurrentIdx());
-			System.out.println("-----------------------------------------------------");
-			compare(2, 10000000, "test_error");
-			System.out.println("1111currentGroup " + currentGroup);
-			System.out.println("currentIndex " + getCurrentIdx());
-			System.out.println(stuRecord.toString());
-			System.out.println("-----------------------!-----------------------------");
-			
-			scanner.nextInt();
-			
-			compare(2, 10000, "test_ok");
-			System.out.println("2222currentGroup " + currentGroup);
-			System.out.println("currentIndex " + getCurrentIdx());
-			System.out.println(stuRecord.toString());
-			System.out.println("-----------------------!-----------------------------");
-			
-			scanner.nextInt();
-			
-			compare(7, 10000000, "test_ok");
-			System.out.println("3333currentGroup " + currentGroup);
-			System.out.println("currentIndex " + getCurrentIdx());
-			System.out.println(stuRecord.toString());
-			System.out.println("-----------------------------------------------------");
-			
-			scanner.nextInt();
-			
-			compare(4, 10000000, "test_ok");
-			System.out.println("4444currentGroup " + currentGroup);
-			System.out.println("currentIndex " + getCurrentIdx());
-			System.out.println(stuRecord.toString());
-			System.out.println("-----------------------------------------------------");
-			
-			scanner.nextInt();
-			
-			
-			compare(4, 10000000, "test_ok");
-			System.out.println("5555currentGroup " + currentGroup);
-			System.out.println("currentIndex " + getCurrentIdx());
-			System.out.println(stuRecord.toString());
-			System.out.println("-----------------------------------------------------");
-			
-			scanner.nextInt();
-			
-			
-			compare(4, 1000, "test_ok");
-			System.out.println("5555currentGroup " + currentGroup);
-			System.out.println("currentIndex " + getCurrentIdx());
-			System.out.println(stuRecord.toString());
-			System.out.println("-----------------------------------------------------");
-			
-			scanner.nextInt();
-			
-			
-			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
@@ -140,11 +77,11 @@ public class MasteryCore {
 				}
 			}
 		}
-		return currentIndex;
+		return currentIndex - 1;
 	}
 	
 	/* taskId, timeUsed, status */
-	public Boolean compare(int taskId, long timeUsed, String status) {
+	public void compare(int taskId, long timeUsed, String status) {
 		// update stuRecord 
 		// upload
 		
@@ -154,7 +91,7 @@ public class MasteryCore {
 		if(!noneMasteryTime){
 			compareTime = Integer.valueOf(masteryTime.get(String.valueOf(taskId)).toString());
 		}
-		System.out.println(compareTime);
+		
 		
 		if((int)(timeUsed/1000) < compareTime){
 			if(status.equalsIgnoreCase("test_ok")){
@@ -177,7 +114,6 @@ public class MasteryCore {
 					}
 				}
 			
-				
 			}
 		} else if((int)(timeUsed/1000) > compareTime){
 			if(status.equalsIgnoreCase("test_ok")){
@@ -213,27 +149,41 @@ public class MasteryCore {
 				if(changeGroup)
 					changeNextGroup();
 				
+				
+		
 			} else {
 				// confirm ui to change task
-				int dialogResult = 0;
+				//int dialogResult = 0;
 				for(int i = 0; i < questionSeq[currentGroup].length; i++){
 					if(questionSeq[currentGroup][i] == currentIndex && i != questionSeq[currentGroup].length - 1){
 						for(int j = i + 1; j < questionSeq[currentGroup].length; j++){
-							System.out.println(currentGroup + "  " + questionSeq[currentGroup][j]);
 							if( ((JSONObject) stuRecord.get(String.valueOf(currentGroup + 1))).get(String.valueOf(questionSeq[currentGroup][j])).equals("false")){
-								dialogResult = JOptionPane.showConfirmDialog(null, "更換較簡單的題目？", "Change Task", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-								if(dialogResult == JOptionPane.YES_OPTION){
-									((JSONObject)stuRecord.get(String.valueOf(currentGroup + 1))).put("currentIndex", String.valueOf(questionSeq[currentGroup][j]));
-								}
+								isDialog = true;
+								tmpIndex = questionSeq[currentGroup][j];
 								break;
 							}
 						}
 						break;
 					}
 				}
+				
+				
 			}
 		}
-		return false;
+		
+
+	}
+	
+	public void setIsDialog(){
+		isDialog = false;
+	}
+	
+	public Boolean getIsDialog(){
+		return isDialog;
+	}
+	
+	public void setCurrentIndex(){
+		((JSONObject)stuRecord.get(String.valueOf(currentGroup + 1))).put("currentIndex", String.valueOf(tmpIndex));
 	}
 	
 	private void changeNextGroup(){

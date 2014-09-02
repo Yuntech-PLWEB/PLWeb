@@ -64,6 +64,7 @@ public class CompilerRunner extends Thread {
 	
 	private Boolean isSubmit[];
 	private int currentTaskIdx;
+	//private int masteryIndex;
 	
 	private ProgramTester testRobot = null;
 	
@@ -80,6 +81,7 @@ public class CompilerRunner extends Thread {
 		this.task = env.getActiveTask();
 		this.testResult = new TestResult(mode);
 
+		/*
 		// retrieve time_cli
 		time_cli = (Long) task.getTempAttribute("time.begin");
 
@@ -94,6 +96,14 @@ public class CompilerRunner extends Thread {
 			time_used = new Date().getTime() - time_update;
 		}
 		task.setTempAttribute("time.update", new Date().getTime());
+*/
+
+		time_cli = (Long) task.getTempAttribute("time.begin");
+
+		time_begin = (Long) task.getTempAttribute("time.begin");
+		time_used = new Date().getTime() - time_begin;
+		
+		task.setTempAttribute("time.update", new Date().getTime());
 
 		// retrieve keystroke from task
 		StringBuffer buff = (StringBuffer) task
@@ -102,6 +112,9 @@ public class CompilerRunner extends Thread {
 		if (buff != null) {
 			keystroke = buff.toString();
 		}
+		
+		
+		
 	}
 
 	/**
@@ -155,7 +168,7 @@ public class CompilerRunner extends Thread {
 		console.init();
 		console.println("OS: " + osName + " (" + osVersion + ")");
 		// console.println("Mode: " + mode);
-
+		String status = "undefined";
 		try {
 			if (task != null) {
 			
@@ -204,7 +217,7 @@ public class CompilerRunner extends Thread {
 					}
 				}
 
-				String status = "undefined";
+				
 				for (XCommand command : task.getCommands()) {
 					if (!command.getMode().equalsIgnoreCase(mode)) {
 						continue;
@@ -426,7 +439,26 @@ public class CompilerRunner extends Thread {
 		// if (testFile.exists()) {
 		// testFile.delete();
 		// }
+		
+		if((project.getPropertyEx("hasMastery") != null && project.getPropertyEx("hasMastery").equals("true")) && env.getLessonMode().equals("student")){
+			
+			MasteryCore.getInstance().compare(Integer.valueOf(task.getId()), time_used, status);
+			
+			
+			
+			
+			console.print("\n###" + time_used, Color.BLUE);
+			//setMasteryIndex(MasteryCore.getInstance().getCurrentIdx());
+		} 
 	}
+	
+	/*public void getMasteryIndex(){
+		return masteryIndex;
+	}
+	
+	private void setMasteryIndex(int idx){
+		this.masteryIndex = idx;
+	}*/
 	
 	public void setIsSubmit(Boolean isSubmit[]){
 		this.isSubmit = isSubmit;

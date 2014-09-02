@@ -105,7 +105,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		tb1 = new JToolBar();
 		tb1.setFloatable(false);
 		if(env.getLessonMode().equals("student") && (env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true"))){
-			toolLabel = new JLabel("test");
+			toolLabel = new JLabel(" ");
+			tb1.addSeparator();
 			tb1.add(toolLabel);
 		} else {
 			tb1.add(createButton("上一題", "control_rewind.png", "task.previous", false));
@@ -223,7 +224,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		} else if((project.getPropertyEx("hasMastery") != null && project.getPropertyEx("hasMastery").equals("true")) && env.getLessonMode().equals("student")) {
 			//String _stuMastery = mm.getStuMastery(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId());
 			///////////////////////////////////////////////
-			masteryCore = MasteryCore.getInstance(mm.getStuMastery(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId()));
+			masteryCore = MasteryCore.getInstance();
 			
 		}
 		
@@ -779,6 +780,9 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			}
 		}
 		// mm.saveMessage(task.getId(), "start", "", "");
+		
+		if(env.getLessonMode().equals("student") && (env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true")))
+			toolLabel.setText(task.getProperty("ExName"));
 	}
 
 	private void openFileViewer(XTask task) {
@@ -925,6 +929,32 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			}
 			
 			runner.start();
+			
+			
+			if((env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true")) && env.getLessonMode().equals("student")){
+				
+				
+				try {
+					runner.join();
+				} catch (InterruptedException ex) {
+				}
+				
+				if(masteryCore.getIsDialog()){
+					int dialogResult = JOptionPane.showConfirmDialog(null, "更換較簡單的題目？", "Change Task", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					if(dialogResult == JOptionPane.YES_OPTION){
+						masteryCore.setCurrentIndex();
+					}
+					masteryCore.setIsDialog();
+				}
+				
+				if(masteryCore.getCurrentIdx() == -1) {
+					env.getActiveProject().setProperty("hasMastery", "false");
+				} else if(idx != masteryCore.getCurrentIdx()){
+					reloadTask(); 
+				}
+				
+			}
+			
 		}
 	}
 
