@@ -933,26 +933,36 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			
 			if((env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true")) && env.getLessonMode().equals("student")){
 				
-				
-				try {
-					runner.join();
-				} catch (InterruptedException ex) {
-				}
-				
-				if(masteryCore.getIsDialog()){
-					int dialogResult = JOptionPane.showConfirmDialog(null, "更換較簡單的題目？", "Change Task", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-					if(dialogResult == JOptionPane.YES_OPTION){
-						masteryCore.setCurrentIndex();
+				Runnable _runnable = new Runnable(){
+					public void run(){
+						while(runner.isAlive()){
+							try {
+								Thread.sleep(500);
+							} catch (InterruptedException ex) {
+
+							}
+						}
+						if(masteryCore.getIsDialog()){
+							int dialogResult = JOptionPane.showConfirmDialog(null, "更換較簡單的題目？", "Change Task", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+							if(dialogResult == JOptionPane.YES_OPTION){
+								masteryCore.setCurrentIndex();
+							}
+							masteryCore.setIsDialog();
+						}
+						if(masteryCore.getCurrentIdx() == -1) {
+							env.getActiveProject().setProperty("hasMastery", "false");
+						} else if(idx != masteryCore.getCurrentIdx()){
+							mm.saveStuMastery(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId(), masteryCore.getMasteryString());
+							reloadTask(); 
+						}
+
+						//mm.saveGrade(_stuGrade.toString(), env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId());
+						
 					}
-					masteryCore.setIsDialog();
-				}
+				};
+				new Thread(_runnable).start();
 				
-				if(masteryCore.getCurrentIdx() == -1) {
-					env.getActiveProject().setProperty("hasMastery", "false");
-				} else if(idx != masteryCore.getCurrentIdx()){
-					reloadTask(); 
-				}
-				
+			
 			}
 			
 		}

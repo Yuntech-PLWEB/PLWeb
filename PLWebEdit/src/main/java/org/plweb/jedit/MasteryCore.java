@@ -174,6 +174,10 @@ public class MasteryCore {
 
 	}
 	
+	public String getMasteryString(){
+		return stuRecord.toString();
+	}
+	
 	public void setIsDialog(){
 		isDialog = false;
 	}

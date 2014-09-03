@@ -54,6 +54,13 @@ switch(action){
 		grade = request.getParameter('grade')
 		sql.executeUpdate(updateSql, [grade, classId, courseId, lessonId, userId])	
 		break;
+	
+	case 'saveMasteryGrade':
+		updateSql = """ UPDATE ST_MASTERY SET MASTERY_GRADE=? WHERE CLASS_ID=? AND COURSE_ID=? AND LESSON_ID=? AND USER_ID=? """
+		masteryGrade = request.getParameter('masteryGrade')
+		sql.executeUpdate(updateSql, [masteryGrade, classId, courseId, lessonId, userId])
+		break;
+		
 	case 'setGrade':
 		utype = helper.sess('utype')
 		if(!session || utype != 'T'){

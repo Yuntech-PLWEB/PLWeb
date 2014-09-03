@@ -340,6 +340,21 @@ public class MessageManager {
 		return request.getResponse();	
 	}
 	
+	//mm.saveStuMastery(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId(), masteryCore.getMasteryString());
+	public void saveStuMastery(Object classId, Object courseId, Object lessonId, Object userId, Object masteryString) {
+		Properties props = new Properties();
+		
+		props.setProperty("classId", String.valueOf(classId));
+		props.setProperty("courseId", String.valueOf(courseId));
+		props.setProperty("lessonId", String.valueOf(lessonId));
+		props.setProperty("userId", String.valueOf(userId));
+		props.setProperty("masteryGrade", String.valueOf(masteryString));
+		
+		ServerRequest request = new ServerRequest("saveMasteryGrade", props);
+		request.setFlag();
+		queue1.offer(request);
+	}
+	
 	public void saveGrade(Object grade, Object classId, Object courseId, Object lessonId, Object userId){
 		Properties props = new Properties();
 		

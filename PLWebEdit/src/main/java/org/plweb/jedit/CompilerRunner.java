@@ -100,7 +100,11 @@ public class CompilerRunner extends Thread {
 
 		time_cli = (Long) task.getTempAttribute("time.begin");
 
+		if((Long) task.getTempAttribute("time.begin") == null)
+			task.setTempAttribute("time.begin", new Date().getTime());
+		
 		time_begin = (Long) task.getTempAttribute("time.begin");
+					
 		time_used = new Date().getTime() - time_begin;
 		
 		task.setTempAttribute("time.update", new Date().getTime());
@@ -443,10 +447,7 @@ public class CompilerRunner extends Thread {
 		if((project.getPropertyEx("hasMastery") != null && project.getPropertyEx("hasMastery").equals("true")) && env.getLessonMode().equals("student")){
 			
 			MasteryCore.getInstance().compare(Integer.valueOf(task.getId()), time_used, status);
-			
-			
-			
-			
+						
 			console.print("\n###" + time_used, Color.BLUE);
 			//setMasteryIndex(MasteryCore.getInstance().getCurrentIdx());
 		} 
