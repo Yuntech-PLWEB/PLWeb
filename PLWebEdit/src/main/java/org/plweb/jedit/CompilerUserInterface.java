@@ -50,6 +50,12 @@ import org.plweb.suite.common.xml.XTask;
 import chrriis.dj.nativeswing.swtimpl.components.HTMLEditorSaveEvent;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 
+
+
+import javax.swing.SwingUtilities;
+import chrriis.dj.nativeswing.swtimpl.NativeComponent;
+import chrriis.dj.nativeswing.swtimpl.NativeInterface;
+
 public class CompilerUserInterface extends JPanel implements ActionListener {
 
 	private ProjectEnvironment env = ProjectEnvironment.getInstance();
@@ -675,7 +681,6 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	 * Reload Task
 	 */
 	public void reloadTask() {
-
 		XProject project = env.getActiveProject();
 
 		if (project == null || project.getTasks().size() == 0) {
@@ -769,7 +774,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		mainBuffer.addBufferListener(bcl);
 
 		console.switchTo(idx);
-		
+
 		// set Submit button.
 		if(env.getIsExam().equals("true") && project.getPropertyEx("hasExamFile").equals("true")){
 			tb1.remove(tb2ForSubmit);
@@ -821,9 +826,15 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		String fileHtml = project.getTaskPropertyEx(task, "file.html");
 
 		if (fileHtml != null) {
+
 			JWebBrowser browser = env.getActiveBrowser();
 			String url = null;
 
+			if(browser == null || browser.equals(null))
+				console.print("fhdkfdhsjfkldjkl;fjdsalk;fjdlk;asf");
+			
+			
+			
 			if (isValidHttpURL(fileHtml)) {
 				url = fileHtml.trim();
 			} else {
@@ -833,7 +844,9 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			// .setHTMLContent("<html><head><meta http-equiv=content-type content=\"text/html; charset=UTF-8\"></head><body></body></html>");
 
 			if (url != null) {
+				//console.print("\n" + url + "\n");
 				browser.navigate(url);
+				
 			}
 		}
 	}
@@ -908,6 +921,14 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		return obj;
 	}
 
+	public void _reloadTask(){
+		SwingUtilities.invokeLater(new Runnable(){
+			public void run(){
+				reloadTask();
+			}
+		});
+	}
+	
 	/**
 	 * Action: Run
 	 */
@@ -933,15 +954,23 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			
 			if((env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true")) && env.getLessonMode().equals("student")){
 				
+				
 				Runnable _runnable = new Runnable(){
+					//public Boolean isReloadTask = false;
 					public void run(){
+					/*
 						while(runner.isAlive()){
 							try {
+								//console.print("\nrunner still alive........" + masteryCore.getCurrentIdx() + "   Idx: " + idx + "\n");
 								Thread.sleep(500);
 							} catch (InterruptedException ex) {
-
 							}
+						}*/
+						try {
+							runner.join();
+						} catch(InterruptedException e){
 						}
+						//console.print("### " + masteryCore.getCurrentIdx() + "\n");
 						if(masteryCore.getIsDialog()){
 							int dialogResult = JOptionPane.showConfirmDialog(null, "更換較簡單的題目？", "Change Task", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 							if(dialogResult == JOptionPane.YES_OPTION){
@@ -949,19 +978,29 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 							}
 							masteryCore.setIsDialog();
 						}
+						//console.print("#@# " + masteryCore.getCurrentIdx() + "\n");
 						if(masteryCore.getCurrentIdx() == -1) {
-							env.getActiveProject().setProperty("hasMastery", "false");
+							//console.print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#@# " + masteryCore.getCurrentIdx() + "\n");
+								//env.getActiveProject().setProperty("hasMastery", "false");
+								
+								
+								
 						} else if(idx != masteryCore.getCurrentIdx()){
+							//console.print("\n != \n");
 							mm.saveStuMastery(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId(), masteryCore.getMasteryString());
-							reloadTask(); 
+							try {
+								//CompilerUserInterface.this.reloadTask(); // refresh
+								CompilerUserInterface.this._reloadTask();
+							} catch(Exception e){
+								console.print(e.toString());
+							}
+								
 						}
-
-						//mm.saveGrade(_stuGrade.toString(), env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId());
-						
+						//console.print("#@# " + masteryCore.getCurrentIdx() + "\n");
+							//mm.saveGrade(_stuGrade.toString(), env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId());
 					}
 				};
 				new Thread(_runnable).start();
-				
 			
 			}
 			
