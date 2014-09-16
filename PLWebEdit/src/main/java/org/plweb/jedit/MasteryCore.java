@@ -45,7 +45,7 @@ public class MasteryCore {
 			
 			questionSeq = new int[stuRecord.size()][];
 			for(int i = 1; i <= ((JSONObject)tmp.get("seq")).size(); i++ ){
-				String[] _tmp = ((JSONObject)tmp.get("seq")).get(String.valueOf(i)).toString().split(", ");
+				String[] _tmp = ((JSONObject)tmp.get("seq")).get(String.valueOf(i)).toString().trim().replaceAll(" ", "").split(",");
 				questionSeq[i - 1] = new int[_tmp.length];
 				for(int j = 0; j < _tmp.length; j++){
 					questionSeq[i - 1][j] = Integer.valueOf(_tmp[j]);

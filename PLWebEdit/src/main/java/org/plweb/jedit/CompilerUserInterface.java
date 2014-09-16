@@ -953,24 +953,13 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			
 			
 			if((env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true")) && env.getLessonMode().equals("student")){
-				
-				
 				Runnable _runnable = new Runnable(){
-					//public Boolean isReloadTask = false;
 					public void run(){
-					/*
-						while(runner.isAlive()){
-							try {
-								//console.print("\nrunner still alive........" + masteryCore.getCurrentIdx() + "   Idx: " + idx + "\n");
-								Thread.sleep(500);
-							} catch (InterruptedException ex) {
-							}
-						}*/
 						try {
 							runner.join();
 						} catch(InterruptedException e){
 						}
-						//console.print("### " + masteryCore.getCurrentIdx() + "\n");
+						
 						if(masteryCore.getIsDialog()){
 							int dialogResult = JOptionPane.showConfirmDialog(null, "更換較簡單的題目？", "Change Task", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 							if(dialogResult == JOptionPane.YES_OPTION){
@@ -978,26 +967,23 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 							}
 							masteryCore.setIsDialog();
 						}
-						//console.print("#@# " + masteryCore.getCurrentIdx() + "\n");
+
 						if(masteryCore.getCurrentIdx() == -1) {
-							//console.print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#@# " + masteryCore.getCurrentIdx() + "\n");
-								//env.getActiveProject().setProperty("hasMastery", "false");
+							///////////////////////////////////////////////////////
 								
 								
 								
 						} else if(idx != masteryCore.getCurrentIdx()){
-							//console.print("\n != \n");
+							
 							mm.saveStuMastery(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId(), masteryCore.getMasteryString());
 							try {
-								//CompilerUserInterface.this.reloadTask(); // refresh
+								
 								CompilerUserInterface.this._reloadTask();
 							} catch(Exception e){
 								console.print(e.toString());
 							}
 								
 						}
-						//console.print("#@# " + masteryCore.getCurrentIdx() + "\n");
-							//mm.saveGrade(_stuGrade.toString(), env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId());
 					}
 				};
 				new Thread(_runnable).start();

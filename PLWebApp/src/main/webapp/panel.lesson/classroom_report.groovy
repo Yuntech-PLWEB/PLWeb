@@ -444,9 +444,10 @@ html.html {
 								if(finalStuGrade != 0)
 									finalStuGrade = String.format("%.2f", finalStuGrade)
 								
-						}		
+						}	
+						td(align: 'center', "${finalStuGrade}")
 					}			
-                                td(align: 'center', "${finalStuGrade}")
+                                
 
 					
 					td {

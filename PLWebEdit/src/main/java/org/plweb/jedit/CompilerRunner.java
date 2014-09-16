@@ -448,7 +448,7 @@ public class CompilerRunner extends Thread {
 			
 			MasteryCore.getInstance().compare(Integer.valueOf(task.getId()), time_used, status);
 						
-			console.print("\n###" + time_used, Color.BLUE);
+			//console.print("\n###" + time_used, Color.BLUE);
 			//setMasteryIndex(MasteryCore.getInstance().getCurrentIdx());
 		} 
 	}
