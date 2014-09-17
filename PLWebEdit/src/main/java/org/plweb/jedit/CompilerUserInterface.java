@@ -965,7 +965,13 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 							if(dialogResult == JOptionPane.YES_OPTION){
 								masteryCore.setCurrentIndex();
 							}
-							masteryCore.setIsDialog();
+							masteryCore.setIsDialog(false);
+						}
+						
+						String isNeedHelp = "n";
+						if(masteryCore.getIsNeedHelp()) {
+							isNeedHelp = "y";
+							masteryCore.setIsNeedHelp(false);
 						}
 
 						if(masteryCore.getCurrentIdx() == -1) {
@@ -973,17 +979,14 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 								
 								
 								
-						} else if(idx != masteryCore.getCurrentIdx()){
-							
-							mm.saveStuMastery(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId(), masteryCore.getMasteryString());
-							try {
-								
+						} else if(idx != masteryCore.getCurrentIdx()){	
+							try {	
 								CompilerUserInterface.this._reloadTask();
 							} catch(Exception e){
 								console.print(e.toString());
-							}
-								
+							}	
 						}
+						mm.saveStuMastery(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId(), masteryCore.getMasteryString(), isNeedHelp);
 					}
 				};
 				new Thread(_runnable).start();

@@ -56,9 +56,10 @@ switch(action){
 		break;
 	
 	case 'saveMasteryGrade':
-		updateSql = """ UPDATE ST_MASTERY SET MASTERY_GRADE=? WHERE CLASS_ID=? AND COURSE_ID=? AND LESSON_ID=? AND USER_ID=? """
+		updateSql = """ UPDATE ST_MASTERY SET MASTERY_GRADE=?, ISNEEDHELP=? WHERE CLASS_ID=? AND COURSE_ID=? AND LESSON_ID=? AND USER_ID=? """
 		masteryGrade = request.getParameter('masteryGrade')
-		sql.executeUpdate(updateSql, [masteryGrade, classId, courseId, lessonId, userId])
+		isNeedHelp = request.getParameter('isNeedHelp')
+		sql.executeUpdate(updateSql, [masteryGrade, isNeedHelp, classId, courseId, lessonId, userId])
 		break;
 		
 	case 'setGrade':
@@ -149,8 +150,8 @@ switch(action){
                     stuRecord.put(i, new JSONObject(content))
                 }
                 _return.put("stuRecord", stuRecord)
-                insertMasterySet = """ INSERT INTO ST_MASTERY(CLASS_ID, COURSE_ID, LESSON_ID, USER_ID, MASTERY_GRADE) VALUES(?, ?, ?, ?, ?) """
-                sql.executeInsert(insertMasterySet, [classId, courseId, lessonId, userId, stuRecord.toString()])
+                insertMasterySet = """ INSERT INTO ST_MASTERY(CLASS_ID, COURSE_ID, LESSON_ID, USER_ID, MASTERY_GRADE, ISNEEDHELP) VALUES(?, ?, ?, ?, ?, ?) """
+                sql.executeInsert(insertMasterySet, [classId, courseId, lessonId, userId, stuRecord.toString(), "n"])
             }
 
             print _return.toString()

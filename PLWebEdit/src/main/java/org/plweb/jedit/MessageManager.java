@@ -341,7 +341,7 @@ public class MessageManager {
 	}
 	
 	//mm.saveStuMastery(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId(), masteryCore.getMasteryString());
-	public void saveStuMastery(Object classId, Object courseId, Object lessonId, Object userId, Object masteryString) {
+	public void saveStuMastery(Object classId, Object courseId, Object lessonId, Object userId, Object masteryString, Object isNeedHelp) {
 		Properties props = new Properties();
 		
 		props.setProperty("classId", String.valueOf(classId));
@@ -349,6 +349,7 @@ public class MessageManager {
 		props.setProperty("lessonId", String.valueOf(lessonId));
 		props.setProperty("userId", String.valueOf(userId));
 		props.setProperty("masteryGrade", String.valueOf(masteryString));
+		props.setProperty("isNeedHelp", String.valueOf(isNeedHelp));
 		
 		ServerRequest request = new ServerRequest("saveMasteryGrade", props);
 		request.setFlag();

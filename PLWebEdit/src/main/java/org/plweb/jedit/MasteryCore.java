@@ -20,6 +20,7 @@ public class MasteryCore {
 	private int currentGroup = 0;
 	private int tmpIndex = 0;
 	private Boolean isDialog = false;
+	private Boolean isNeedHelp = false;
 
 	public static MasteryCore getInstance() {
 		if (instance == null) {
@@ -87,13 +88,13 @@ public class MasteryCore {
 		
 		Boolean flag = false;
 		/* get TaskAvgTime */
-		int compareTime = 0;
+		int compareTime = 1;
 		if(!noneMasteryTime){
 			compareTime = Integer.valueOf(masteryTime.get(String.valueOf(taskId)).toString());
 		}
 		
 		
-		if((int)(timeUsed/1000) < compareTime){
+		if((int)(timeUsed/1000) <= compareTime){
 			if(status.equalsIgnoreCase("test_ok")){
 				
 				for(int i = 0; i < questionSeq[currentGroup].length; i++){
@@ -115,7 +116,7 @@ public class MasteryCore {
 				}
 			
 			}
-		} else if((int)(timeUsed/1000) > compareTime){
+		} else if((int)(timeUsed/1000) >= compareTime){
 			if(status.equalsIgnoreCase("test_ok")){
 				((JSONObject)stuRecord.get(String.valueOf(currentGroup + 1))).put(String.valueOf(currentIndex), "true");
 				Boolean changeGroup = true;
@@ -152,34 +153,46 @@ public class MasteryCore {
 				
 		
 			} else {
-				// confirm ui to change task
-				//int dialogResult = 0;
+				
 				for(int i = 0; i < questionSeq[currentGroup].length; i++){
-					if(questionSeq[currentGroup][i] == currentIndex && i != questionSeq[currentGroup].length - 1){
+					if(questionSeq[currentGroup][i] == currentIndex && i != questionSeq[currentGroup].length - 1){	
 						for(int j = i + 1; j < questionSeq[currentGroup].length; j++){
 							if( ((JSONObject) stuRecord.get(String.valueOf(currentGroup + 1))).get(String.valueOf(questionSeq[currentGroup][j])).equals("false")){
 								isDialog = true;
 								tmpIndex = questionSeq[currentGroup][j];
 								break;
 							}
+
 						}
+						if(!isDialog){
+							isNeedHelp = true;
+						}		
 						break;
+					} else if(i == questionSeq[currentGroup].length - 1) {
+						isNeedHelp = true;
 					}
-				}
 				
-				
+				}			
 			}
 		}
 		
 
 	}
 	
+	public Boolean getIsNeedHelp(){
+		return isNeedHelp;
+	}
+	
+	public void setIsNeedHelp(Boolean value){
+		isNeedHelp = value;
+	}
+	
 	public String getMasteryString(){
 		return stuRecord.toString();
 	}
 	
-	public void setIsDialog(){
-		isDialog = false;
+	public void setIsDialog(Boolean value){
+		isDialog = value;
 	}
 	
 	public Boolean getIsDialog(){
