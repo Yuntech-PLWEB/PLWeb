@@ -357,46 +357,11 @@ html.html {
 							
 							total ++
 						}
-						/*
-						br()
-						
-						task_id_list.each {
-							qid ->
-							
-							review = 0;
-							
-							if (!SQLDATA.get(student.id) ||
-								!(q = SQLDATA.get(student.id).get(qid))) {
-								review = 1
-							}
-							else if ('y'.equalsIgnoreCase(q.IS_PASSED)) {
-								if (q.IS_REVIEWED == null) {
-									review = 0;
-								}
-								else {
-									//review = q.IS_REVIEWED
-									review = 0
-								}
-							}
-							else {
-								review = 1
-							}
-							
-							next_review = review.toInteger() + 1
-							if (next_review > 2) next_review = 0
-							href_review = sprintf('lamp_review.groovy?class_id=%s&course_id=%s&lesson_id=%s&task_id=%s&user_id=%s&time=%s&review=%s',
-								class_id,
-								course_id,
-								lesson_id,
-								qid,
-								student.id,
-								time,
-								next_review)
-							a (href: href_review, style: 'text-decoration: none') {
-								img (src: "light/review-${review}.png", border: 0)
-							}
-						}
-						*/
+						sql = new Sql(ds.connection)
+                        row = sql.firstRow(""" SELECT ISNEEDHELP FROM ST_MASTERY WHERE CLASS_ID=? AND COURSE_ID=? AND LESSON_ID=? AND USER_ID=? """, [class_id, course_id, lesson_id, student.id])
+                        if(row && (row.ISNEEDHELP).equalsIgnoreCase("y"))
+                        img (src: "../icons/exclamation.png", align: 'right', class: 'needHelp')
+                        sql.close()
 					}
 					
 					if(isGradeSet){
