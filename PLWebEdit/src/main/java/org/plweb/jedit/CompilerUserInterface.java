@@ -76,6 +76,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	private MasteryCore masteryCore;
 	
 	private JToolBar tb1;
+	private JPanel p3;
 	private Boolean isSubmit[];
 	private JToolBar tb2ForSubmit;
 	
@@ -85,7 +86,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	
 	private int idx;
 	private JLabel toolLabel;
-	
+	private JButton masteryReload = null;
 
 	public CompilerUserInterface() throws Exception {
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 3, 3));
@@ -157,7 +158,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 					"task.down"));
 		}
 
-		JPanel p3 = new JPanel(new BorderLayout());
+		p3 = new JPanel(new BorderLayout());
 		p3.add(tb1, BorderLayout.CENTER);
 		p3.add(tb2, BorderLayout.WEST);
 
@@ -228,10 +229,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			String _masteryString = mm.getMasterySet(env.getCourseId(), env.getLessonId());
 			MasteryLearningSet.getInstance().setMasterySet(_masteryString);
 		} else if((project.getPropertyEx("hasMastery") != null && project.getPropertyEx("hasMastery").equals("true")) && env.getLessonMode().equals("student")) {
-			//String _stuMastery = mm.getStuMastery(env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId());
-			///////////////////////////////////////////////
 			masteryCore = MasteryCore.getInstance();
-			
 		}
 		
 		/*
@@ -690,23 +688,6 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		// send 'end' message for before task
 		XTask beforeTask = env.getActiveTask();
 
-		// if (beforeTask != null) {
-		// mm.saveMessage(
-		// beforeTask.getId(),
-		// (Long) beforeTask.getTempAttribute("time.begin"),
-		// (Long) beforeTask.getTempAttribute("time.begin"),
-		// 0,
-		// "end",
-		// "",
-		// "End of exercise.",
-		// getMainBufferText(),
-		// "",
-		// "",
-		// 0,
-		// ""
-		// );
-		// }
-
 		View actView = jEdit.getActiveView();
 		jEdit.closeAllBuffers(actView);
 
@@ -737,20 +718,6 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 
 		task.setTempAttribute("time.begin", new Date().getTime());
 
-		// mm.saveMessage(
-		// task.getId(),
-		// (Long) task.getTempAttribute("time.begin"),
-		// (Long) task.getTempAttribute("time.begin"),
-		// 0,
-		// "begin",
-		// "",
-		// "Begin of exercise.",
-		// "",
-		// "",
-		// "",
-		// 0,
-		// ""
-		// );
 
 		openProjectHtml(task);
 
@@ -786,8 +753,15 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		}
 		// mm.saveMessage(task.getId(), "start", "", "");
 		
-		if(env.getLessonMode().equals("student") && (env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true")))
+		if(env.getLessonMode().equals("student") && (env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true"))){
 			toolLabel.setText(task.getProperty("ExName"));
+			if(masteryReload != null){
+				p3.remove(masteryReload);
+				masteryReload = null;
+				p3.revalidate();
+				p3.repaint();
+			}
+		}
 	}
 
 	private void openFileViewer(XTask task) {
@@ -830,11 +804,6 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			JWebBrowser browser = env.getActiveBrowser();
 			String url = null;
 
-			if(browser == null || browser.equals(null))
-				console.print("fhdkfdhsjfkldjkl;fjdsalk;fjdlk;asf");
-			
-			
-			
 			if (isValidHttpURL(fileHtml)) {
 				url = fileHtml.trim();
 			} else {
@@ -964,6 +933,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 							int dialogResult = JOptionPane.showConfirmDialog(null, "更換較簡單的題目？", "Change Task", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 							if(dialogResult == JOptionPane.YES_OPTION){
 								masteryCore.setCurrentIndex();
+								CompilerUserInterface.this._reloadTask();
 							}
 							masteryCore.setIsDialog(false);
 						}
@@ -981,7 +951,12 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 								
 						} else if(idx != masteryCore.getCurrentIdx()){	
 							try {	
-								CompilerUserInterface.this._reloadTask();
+								
+								
+								masteryReload = createButton("下一題", "control_fastforward.png", "task.reload", false);
+								p3.add(masteryReload, BorderLayout.EAST);
+								
+								//CompilerUserInterface.this._reloadTask();
 							} catch(Exception e){
 								console.print(e.toString());
 							}	

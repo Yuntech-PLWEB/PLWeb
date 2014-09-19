@@ -165,6 +165,8 @@ html.html {
 		title('查看狀態')
 		base(href: helper.basehref())
 		script(type: 'text/javascript', src: 'view_lamp.js', '')
+		script(type: 'text/javascript', src: 'js/jquery-1.4.2.min.js', '')
+        script(type: 'text/javascript', src: 'js/alertEffect.js', '')
 		link (rel:'stylesheet', type:'text/css', href:'default.css', media:'all')
 	}
 	body {
