@@ -154,10 +154,32 @@ public class ProgramTester {
 			
 	}
 	
+	public int getSubmitTime(String src) throws IOException{
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(this.rootPath + "\\" + src), "utf-8"));
+		int _return = 1;
+		try {
+			StringBuilder sb = new StringBuilder();
+			String line = br.readLine();
+			
+			
+			while(line != null){
+				if(line.trim().startsWith("*")){
+					if(isNumber(line.replaceAll("\\*", "").trim()))
+						_return = Integer.parseInt(line.replaceAll("\\*", "").trim());
+				}
+				line = br.readLine();
+			}
+			return _return;
+		} finally {
+			br.close();
+		}
+	}
+	
 	// read exam file for get parameter
 	public ArrayList<String> readFile(String src, String flag) throws IOException{
+		//submitTime = 1;
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(this.rootPath + "\\" + src), "utf-8"));
-	//	BufferedReader br = new BufferedReader(new FileReader(this.rootPath + "\\" + src));
+	
 		try {
 			StringBuilder sb = new StringBuilder();
 			String line = br.readLine();
@@ -167,17 +189,28 @@ public class ProgramTester {
 				if(line.equals(flag) || line == null){
 					parameter.add(sb.toString());
 					sb.setLength(0);
-					line = br.readLine();
-					continue;
-				}
-				sb.append(line);
-				sb.append("\n");
+				} else if(!line.trim().startsWith("*") && !line.trim().startsWith("%")){
+					sb.append(line);
+					sb.append("\n");
+				} /*else if(line.trim().startsWith("*")){
+					if(isNumber(line.replaceAll("\\*", "").trim()))
+						submitTime = Integer.parseInt(line.replaceAll("\\*", "").trim());
+				}*/
 				line = br.readLine();
 			}
 			return parameter;
 		} finally {
 			br.close();
 		}
+	}
+	
+	public Boolean isNumber(String value) {
+		try {
+			Integer.parseInt(value);
+		} catch(Exception e){
+			return false;
+		}
+		return true;
 	}
 	
 	public void interrupt(){

@@ -342,10 +342,46 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		} else if (cmd.equals("html.edit")) {
 			html();
 		} else if (cmd.equals("task.submit")) {
-			int dialogResult = JOptionPane.showConfirmDialog(null, "若提交後則無法再修改程式碼，確認提交？", "Submit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-			if(dialogResult == JOptionPane.YES_OPTION){
-				submitTask();
-			}	
+			
+			if(env.getActiveTask().getTempAttribute("stuSubmitTime") == null){
+				env.getActiveTask().setTempAttribute("stuSubmitTime", 1);
+			} 
+			//else {
+				
+			//}
+			
+			int submitTime = 1;
+			try {
+				submitTime = ProgramTester.getInstance(env.getActiveProject().getRootPath()).getSubmitTime(env.getActiveTask().getProperty("ExName") + ".exam");
+			} catch(Exception _e) {
+				
+			}
+			
+			if(Integer.parseInt(env.getActiveTask().getTempAttribute("stuSubmitTime").toString()) >= submitTime){
+			
+				int dialogResult = JOptionPane.showConfirmDialog(null, "若提交後則無法再修改程式碼，確認提交？", "Submit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if(dialogResult == JOptionPane.YES_OPTION){
+					removeSubmitBtn();	
+					isSubmit[comboTask.getSelectedIndex()] = true;
+					submitTask(true);
+				}
+			} else {
+			
+				int dialogResult = JOptionPane.showConfirmDialog(null, "剩餘提交次數： " + (1 + submitTime - Integer.parseInt(env.getActiveTask().getTempAttribute("stuSubmitTime").toString())) + "，確認提交？", "Submit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if(dialogResult == JOptionPane.YES_OPTION){
+					Object _stuSubmitTime = env.getActiveTask().getTempAttribute("stuSubmitTime");
+					env.getActiveTask().setTempAttribute("stuSubmitTime", Integer.parseInt(_stuSubmitTime.toString()) + 1);
+					submitTask(false);
+				}
+			
+				//console.print("剩餘提交次數：" + (submitTime - Integer.parseInt(env.getActiveTask().getTempAttribute("stuSubmitTime").toString())), Color.RED);
+				//submitTask();
+			}
+			
+			//if(dialogResult != JOptionPane.NO_OPTION)
+				
+			
+			
 		} else if (cmd.equals("masteryLearning.edit")){
 		
 			MasteryLearningSet.getInstance().displayPanel();
@@ -386,7 +422,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		}
 	}
 	
-	private void submitTask(){
+	private void submitTask(final boolean canUpload){
 		if (runner != null && runner.isAlive()) {
 			View v = jEdit.getActiveView();
 			GUIUtilities.message(v, "compiler.dialog0", null);
@@ -409,22 +445,26 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 						
 						ArrayList<String> correctAns = testRobot.readFile(task.getProperty("ExName") + ".cond2", "#####");
 						ArrayList<String> _param = testRobot.readFile(task.getProperty("ExName") + ".exam", "#");
-						
+											
 						String stuAns = new String();
 						String corAns = new String();
 						Boolean[] stuGrade = new Boolean[_param.size()];
 						Map<Integer, Boolean> map = new HashMap<Integer, Boolean>();
 						
 						console.print("\n===============Begin Test===============\n");
+						Boolean isAllPass = null;
 						if(_param.size() == 0){
+							
 							stuAns = regStr(testRobot.executeSrc(language, "", task.getProperty("ExName")));
 							corAns = regStr(correctAns.get(0));
-							Boolean isPass;;
-							if(stuAns.equals(corAns))
+							Boolean isPass;
+							if(stuAns.equals(corAns)) {
 								isPass = true;
-							else
+								isAllPass = true;
+							} else {
 								isPass = false;
-							
+								isAllPass = false;
+							}
 							map.put(1, isPass);
 							printTest(1, isPass, corAns, stuAns);
 						} else
@@ -433,20 +473,41 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 									break;
 								stuAns = regStr(testRobot.executeSrc(language, _param.get(i), task.getProperty("ExName")));
 								corAns = regStr(correctAns.get(i));
-								if(stuAns.equals(corAns))
+								if(stuAns.equals(corAns)) {
 									stuGrade[i] = true;
-								else
+									isAllPass = true;
+								} else {
 									stuGrade[i] = false;
+									isAllPass = false;
+								}
 									
 								map.put(i + 1, stuGrade[i]);
 									
 								printTest(i + 1, stuGrade[i], corAns, stuAns);
 							}
-							isInterrupt = false;
-						_stuGrade.put(String.valueOf(comboTask.getSelectedIndex() + 1), new HashMap<Integer, Boolean>(map));
+						isInterrupt = false;
 						
-						// saveGrade to Server
-						mm.saveGrade(_stuGrade.toString(), env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId());
+						if(canUpload || isAllPass) {
+							_stuGrade.put(String.valueOf(comboTask.getSelectedIndex() + 1), new HashMap<Integer, Boolean>(map));
+							// saveGrade to Server
+							mm.saveGrade(_stuGrade.toString(), env.getClassId(), env.getCourseId(), env.getLessonId(), env.getUserId());
+							removeSubmitBtn();
+						}
+						
+						
+						/*
+						if(env.getActiveTask().getTempAttribute("stuSubmitTime") == null){
+							env.getActiveTask().setTempAttribute("stuSubmitTime", 1);
+						} else {
+							Object _stuSubmitTime = env.getActiveTask().getTempAttribute("stuSubmitTime");
+							env.getActiveTask().setTempAttribute("stuSubmitTime", Integer.parseInt(_stuSubmitTime.toString()) + 1);
+						}
+
+						if(Integer.parseInt(env.getActiveTask().getTempAttribute("stuSubmitTime").toString()) >= ProgramTester.getInstance(env.getActiveProject().getRootPath()).getSubmitTime()){
+							removeSubmitBtn();
+							// set isSubmit
+							isSubmit[comboTask.getSelectedIndex()] = true;
+						}*/
 						
 					} catch (Exception e) {
 					
@@ -455,14 +516,18 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			};
 			
 			new Thread(runnable).start();
-			//remove submit button
-			tb1.remove(tb2ForSubmit);
-			tb1.revalidate();
-			tb1.repaint();
 			
-			// set isSubmit
-			isSubmit[comboTask.getSelectedIndex()] = true;
 		}
+	}
+	
+	public void removeSubmitBtn(){
+		//SwingUtilities.invokeLater(new Runnable(){
+		//	public void run(){
+				tb1.remove(tb2ForSubmit);
+				tb1.revalidate();
+				tb1.repaint();
+		//	}
+		//});
 	}
 	
 	private void printTest(int number, Boolean isPass, String corAns, String stuAns){

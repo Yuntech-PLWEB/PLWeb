@@ -189,7 +189,7 @@ public class CompilerRunner extends Thread {
 						testRobot = ProgramTester.getInstance(project.getRootPath());
 						console.print("compiler the source code...\n", Color.green);
 						testRobot.compiler(language, task.getProperty("ExName"));
-						console.print("read the param from .exam file\n", Color.green);
+						console.print("read the parameter from .exam file\n", Color.green);
 						ArrayList<String> param = testRobot.readFile(task.getProperty("ExName") + ".exam", "#");
 						String result = new String();
 						int paramNum = 1;
