@@ -26,6 +26,8 @@ public class ProgramTester {
 	
 	private static ProgramTester instance = null;
 	
+	ArrayList<String> errorHint = null;
+	
 	public static ProgramTester getInstance(String rootPath){
 		if(instance == null)
 			return instance = new ProgramTester(rootPath);
@@ -160,8 +162,7 @@ public class ProgramTester {
 		try {
 			StringBuilder sb = new StringBuilder();
 			String line = br.readLine();
-			
-			
+						
 			while(line != null){
 				if(line.trim().startsWith("*")){
 					if(isNumber(line.replaceAll("\\*", "").trim()))
@@ -182,26 +183,34 @@ public class ProgramTester {
 	
 		try {
 			StringBuilder sb = new StringBuilder();
+			StringBuilder eb = new StringBuilder();
 			String line = br.readLine();
 			ArrayList<String> parameter = new ArrayList<String>();
+			errorHint = new ArrayList<String>();
 			
 			while(line != null){
 				if(line.equals(flag) || line == null){
 					parameter.add(sb.toString());
 					sb.setLength(0);
+					errorHint.add(eb.toString());
+					eb.setLength(0);
 				} else if(!line.trim().startsWith("*") && !line.trim().startsWith("%")){
 					sb.append(line);
 					sb.append("\n");
-				} /*else if(line.trim().startsWith("*")){
-					if(isNumber(line.replaceAll("\\*", "").trim()))
-						submitTime = Integer.parseInt(line.replaceAll("\\*", "").trim());
-				}*/
+				} else if(line.trim().startsWith("%")){
+					eb.append(line);
+					eb.append("\n");
+				}
 				line = br.readLine();
 			}
 			return parameter;
 		} finally {
 			br.close();
 		}
+	}
+	
+	public ArrayList<String> getErrorHint(){
+		return errorHint;
 	}
 	
 	public Boolean isNumber(String value) {

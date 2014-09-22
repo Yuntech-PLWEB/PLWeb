@@ -46,7 +46,7 @@ $(function() {
 //              alert(JSON.stringify(totalPercent));
 
                 $.ajax({
-                        url: '/GradeSetting.groovy',
+                        url: '/dataSetting.groovy',
                         dataType:'text',
                         type:'GET',
                         data:{

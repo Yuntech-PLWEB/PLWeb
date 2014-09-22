@@ -445,6 +445,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 						
 						ArrayList<String> correctAns = testRobot.readFile(task.getProperty("ExName") + ".cond2", "#####");
 						ArrayList<String> _param = testRobot.readFile(task.getProperty("ExName") + ".exam", "#");
+						ArrayList<String> errorHint = testRobot.getErrorHint();
 											
 						String stuAns = new String();
 						String corAns = new String();
@@ -466,7 +467,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 								isAllPass = false;
 							}
 							map.put(1, isPass);
-							printTest(1, isPass, corAns, stuAns);
+							printTest(1, isPass, corAns, stuAns, null);
 						} else
 							for(int i = 0; i < _param.size(); i++){
 								if(isInterrupt.equals(true))
@@ -483,7 +484,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 									
 								map.put(i + 1, stuGrade[i]);
 									
-								printTest(i + 1, stuGrade[i], corAns, stuAns);
+								printTest(i + 1, stuGrade[i], corAns, stuAns, errorHint.get(i));
 							}
 						isInterrupt = false;
 						
@@ -530,7 +531,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		//});
 	}
 	
-	private void printTest(int number, Boolean isPass, String corAns, String stuAns){
+	private void printTest(int number, Boolean isPass, String corAns, String stuAns, String errorHint){
 		console.print("TEST " + number + "\n", Color.red);
 		console.print("EXPECTED RESULT：\n", Color.blue);
 		console.print(corAns);
@@ -538,9 +539,11 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		console.print(stuAns);
 		if(isPass)
 			console.print("\nDESCRIPTION： " + "match\n", Color.green);
-		else
+		else{
 			console.print("\nDESCRIPTION： " + "Mismatch\n", Color.red);
-					
+			if(!errorHint.equals(""))
+				console.print("Hint：" + errorHint + "\n", Color.blue);
+		}		
 		console.print("---------------------------\n");		
 	}
 	
