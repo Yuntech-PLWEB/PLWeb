@@ -64,7 +64,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 
 	private CompilerRunner runner;
 
-	private JComboBox comboTask;
+	private JComboBox comboTask = null;
 	private JComboBox comboMode;
 
 	private MessageManager mm = MessageManager.getInstance();
@@ -73,7 +73,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 
 	private BufferChangeListener bcl = BufferChangeListener.getInstance();
 	
-	private MasteryCore masteryCore;
+	private MasteryCore masteryCore = null;
 	
 	private JToolBar tb1;
 	private JPanel p3;
@@ -87,6 +87,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	private int idx;
 	private JLabel toolLabel;
 	private JButton masteryReload = null;
+	
+	private List<Integer> masteryFinishArray;
 
 	public CompilerUserInterface() throws Exception {
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 3, 3));
@@ -115,6 +117,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			toolLabel = new JLabel(" ");
 			tb1.addSeparator();
 			tb1.add(toolLabel);
+			
 		} else {
 			tb1.add(createButton("上一題", "control_rewind.png", "task.previous", false));
 			tb1.add(comboTask = createComboBox(tasks, "task.select"));
@@ -230,6 +233,8 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			MasteryLearningSet.getInstance().setMasterySet(_masteryString);
 		} else if((project.getPropertyEx("hasMastery") != null && project.getPropertyEx("hasMastery").equals("true")) && env.getLessonMode().equals("student")) {
 			masteryCore = MasteryCore.getInstance();
+			if(masteryCore.getCurrentIdx() == -1)
+				addTaskComboBox();
 		}
 		
 		/*
@@ -310,19 +315,40 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		} else if (cmd.equals("task.reload")) {
 			reloadTask();
 		} else if (cmd.equals("task.previous")) {
-			//int idx = comboTask.getSelectedIndex();
-			setIndex();
-			if (idx > 0) {
+			//setIndex();
+			/*if (masteryCore != null && masteryCore.getCurrentIdx() == -1){
+				if(comboTask.getSelectedIndex() > 0)
+					comboTask.setSelectedIndex(comboTask.getSelectedIndex() - 1);
+			} else if (idx > 0) {
 				comboTask.setSelectedIndex(idx - 1);
-			}
+			}*/
+			if(comboTask.getSelectedIndex() > 0)
+				comboTask.setSelectedIndex(comboTask.getSelectedIndex() - 1);
 			reloadTask();
 		} else if (cmd.equals("task.next")) {
-			//int idx = comboTask.getSelectedIndex();
-			setIndex();
-			if (idx + 1 < comboTask.getItemCount()) {
+			//setIndex();
+			/*if (masteryCore != null && masteryCore.getCurrentIdx() == -1) {
+				if(comboTask.getSelectedIndex() + 1 < comboTask.getItemCount())
+					comboTask.setSelectedIndex(comboTask.getSelectedIndex() + 1);
+			} else if (idx + 1 < comboTask.getItemCount()) {
 				comboTask.setSelectedIndex(idx + 1);
-			}
+			}*/
+			
+			if(comboTask.getSelectedIndex() + 1 < comboTask.getItemCount())
+				comboTask.setSelectedIndex(comboTask.getSelectedIndex() + 1);
+			
 			reloadTask();
+		} else if (cmd.equals("mastery.next")){
+			if(env.getLessonMode().equals("student") && (env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true"))){
+				if(masteryReload != null){
+					p3.remove(masteryReload);
+					masteryReload = null;
+					p3.revalidate();
+					p3.repaint();
+					masteryCore.setIsChangeTask(false);
+				}
+				reloadTask();
+			}
 		} else if (cmd.equals("task.edit")) {
 			//int idx = comboTask.getSelectedIndex();
 			setIndex();
@@ -346,9 +372,6 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			if(env.getActiveTask().getTempAttribute("stuSubmitTime") == null){
 				env.getActiveTask().setTempAttribute("stuSubmitTime", 1);
 			} 
-			//else {
-				
-			//}
 			
 			int submitTime = 1;
 			try {
@@ -365,6 +388,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 					isSubmit[comboTask.getSelectedIndex()] = true;
 					submitTask(true);
 				}
+				
 			} else {
 			
 				int dialogResult = JOptionPane.showConfirmDialog(null, "剩餘提交次數： " + (1 + submitTime - Integer.parseInt(env.getActiveTask().getTempAttribute("stuSubmitTime").toString())) + "，確認提交？", "Submit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -374,14 +398,9 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 					submitTask(false);
 				}
 			
-				//console.print("剩餘提交次數：" + (submitTime - Integer.parseInt(env.getActiveTask().getTempAttribute("stuSubmitTime").toString())), Color.RED);
-				//submitTask();
-			}
-			
-			//if(dialogResult != JOptionPane.NO_OPTION)
 				
-			
-			
+			}
+					
 		} else if (cmd.equals("masteryLearning.edit")){
 		
 			MasteryLearningSet.getInstance().displayPanel();
@@ -495,21 +514,6 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 							removeSubmitBtn();
 						}
 						
-						
-						/*
-						if(env.getActiveTask().getTempAttribute("stuSubmitTime") == null){
-							env.getActiveTask().setTempAttribute("stuSubmitTime", 1);
-						} else {
-							Object _stuSubmitTime = env.getActiveTask().getTempAttribute("stuSubmitTime");
-							env.getActiveTask().setTempAttribute("stuSubmitTime", Integer.parseInt(_stuSubmitTime.toString()) + 1);
-						}
-
-						if(Integer.parseInt(env.getActiveTask().getTempAttribute("stuSubmitTime").toString()) >= ProgramTester.getInstance(env.getActiveProject().getRootPath()).getSubmitTime()){
-							removeSubmitBtn();
-							// set isSubmit
-							isSubmit[comboTask.getSelectedIndex()] = true;
-						}*/
-						
 					} catch (Exception e) {
 					
 					}
@@ -541,7 +545,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			console.print("\nDESCRIPTION： " + "match\n", Color.green);
 		else{
 			console.print("\nDESCRIPTION： " + "Mismatch\n", Color.red);
-			if(!errorHint.equals(""))
+			if(!errorHint.equals("") || !errorHint.equals(null))
 				console.print("Hint：" + errorHint + "\n", Color.blue);
 		}		
 		console.print("---------------------------\n");		
@@ -578,11 +582,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 				del.delete();				
 			}
 		}
-		
-		//fileEncrypt = new Encryption();
-		//fileEncrypt.decrypt(project.getRootPath() + "\\" + task.getProperty("ExName") + ".cond2.enc");
-		
-		
+	
 		new Thread(new ProjectUploader()).start();
 		new Thread(new SaveGradeSet()).start();
 		new Thread(new SaveMasterySet()).start();
@@ -593,7 +593,6 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	 */
 	private void upTask() {
 		XProject actProject = env.getActiveProject();
-		//int idx = comboTask.getSelectedIndex();
 		setIndex();
 		if (idx > 0) {
 			XTask task = actProject.getTask(idx);
@@ -614,7 +613,6 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 	 */
 	private void downTask() {
 		XProject actProject = env.getActiveProject();
-		//int idx = comboTask.getSelectedIndex();
 		setIndex();
 		if (idx < comboTask.getItemCount()) {
 			XTask task = actProject.getTask(idx + 1);
@@ -643,7 +641,6 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		newTask.setId(String.valueOf(taskCount));
 		newTask.setTitle("New Task");
 
-		//int idx = comboTask.getSelectedIndex();
 		setIndex();
 		if (project.getTasks().size() > 0 && idx >= 0) {
 			XTask srcTask = env.getActiveProject().getTask(idx);
@@ -712,10 +709,52 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 
 	private void setIndex(){
 		if(env.getLessonMode().equals("student") && (env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true"))){
-			idx = masteryCore.getCurrentIdx();
+			if(!MasteryCore.getInstance().getIsChangeTask()){
+				idx = masteryCore.getCurrentIdx();
+			}
+				
+			if(idx == -1) {
+				idx = masteryFinishArray.get(comboTask.getSelectedIndex());
+			}
+			
 		} else {
 			idx = comboTask.getSelectedIndex();
 		}
+	}
+	// ###@
+	private void addTaskComboBox(){
+	
+		masteryFinishArray = new ArrayList<Integer>();
+		tb1.remove(toolLabel);
+		
+		if(comboTask == null){
+			String[] tasks = {};
+			tb1.add(createButton("上一題", "control_rewind.png", "task.previous", false));
+			tb1.add(comboTask = createComboBox(tasks, "task.select"));
+			tb1.add(createButton("下一題", "control_fastforward.png", "task.next", false));
+		}
+		comboTask.removeActionListener(this);
+		comboTask.removeAllItems();
+		
+		int c = 1;
+		XProject project = env.getActiveProject();
+		if (project==null) {
+			System.err.println("Project not loaded.");
+			return;
+		}
+		
+		for(int i = 1; i <= masteryCore.getSeq().size(); i++){
+			String[] _seq = ((String) masteryCore.getSeq().get(String.valueOf(i))).trim().replaceAll(" ", "").split(",");
+			for(int j = 0; j < _seq.length; j++){
+				if(((JSONObject) masteryCore.getStuRecord().get(String.valueOf(i))).get(_seq[j]).equals("true")){
+					masteryFinishArray.add(Integer.valueOf(_seq[j]) - 1);
+					comboTask.addItem(String.valueOf(c).concat(" - ").concat(project.getTask(Integer.valueOf(_seq[j]) - 1).getTitle()));
+					c++;
+				}
+			}
+		}
+		comboTask.addActionListener(this);
+		comboTask.setSelectedIndex(0);
 	}
 	
 	public void refreshTaskComboBox(boolean keepIdx) {
@@ -761,8 +800,9 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 
 		//int idx = comboTask.getSelectedIndex();
 		setIndex();
+		
 		XTask task = project.getTask(idx);
-
+		
 		if (task == null) {
 			return;
 		}
@@ -823,12 +863,6 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 		
 		if(env.getLessonMode().equals("student") && (env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true"))){
 			toolLabel.setText(task.getProperty("ExName"));
-			if(masteryReload != null){
-				p3.remove(masteryReload);
-				masteryReload = null;
-				p3.revalidate();
-				p3.repaint();
-			}
 		}
 	}
 
@@ -881,7 +915,6 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			// .setHTMLContent("<html><head><meta http-equiv=content-type content=\"text/html; charset=UTF-8\"></head><body></body></html>");
 
 			if (url != null) {
-				//console.print("\n" + url + "\n");
 				browser.navigate(url);
 				
 			}
@@ -996,11 +1029,12 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 							runner.join();
 						} catch(InterruptedException e){
 						}
-						
+						Boolean autoChange = false;
 						if(masteryCore.getIsDialog()){
 							int dialogResult = JOptionPane.showConfirmDialog(null, "更換較簡單的題目？", "Change Task", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 							if(dialogResult == JOptionPane.YES_OPTION){
 								masteryCore.setCurrentIndex();
+								autoChange = true;
 								CompilerUserInterface.this._reloadTask();
 							}
 							masteryCore.setIsDialog(false);
@@ -1013,16 +1047,21 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 						}
 
 						if(masteryCore.getCurrentIdx() == -1) {
-							///////////////////////////////////////////////////////
+							
+							SwingUtilities.invokeLater(new Runnable(){
+								public void run(){
+									addTaskComboBox();
+								}
+							});
 								
-								
-								
-						} else if(idx != masteryCore.getCurrentIdx()){	
+								 
+						} else if(idx != masteryCore.getCurrentIdx() && !autoChange){	
+							masteryCore.setIsChangeTask(true);
 							try {	
-								
-								
-								masteryReload = createButton("下一題", "control_fastforward.png", "task.reload", false);
-								p3.add(masteryReload, BorderLayout.EAST);
+								if(masteryReload == null){
+									masteryReload = createButton("下一題", "control_fastforward.png", "mastery.next", false);
+									p3.add(masteryReload, BorderLayout.EAST);
+								}
 								
 								//CompilerUserInterface.this._reloadTask();
 							} catch(Exception e){

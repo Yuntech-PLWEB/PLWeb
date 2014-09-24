@@ -446,7 +446,8 @@ public class CompilerRunner extends Thread {
 		
 		if((project.getPropertyEx("hasMastery") != null && project.getPropertyEx("hasMastery").equals("true")) && env.getLessonMode().equals("student")){
 			
-			MasteryCore.getInstance().compare(Integer.valueOf(task.getId()), time_used, status);
+			if(!MasteryCore.getInstance().getIsChangeTask())
+				MasteryCore.getInstance().compare(Integer.valueOf(task.getId()), time_used, status);
 						
 			//console.print("\n###" + time_used, Color.BLUE);
 			//setMasteryIndex(MasteryCore.getInstance().getCurrentIdx());

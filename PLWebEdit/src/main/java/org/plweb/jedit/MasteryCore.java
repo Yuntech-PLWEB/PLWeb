@@ -14,6 +14,7 @@ public class MasteryCore {
 
 	private JSONObject stuRecord = null;
 	private JSONObject masteryTime = null;
+	private JSONObject seq = null;
 	private int[][] questionSeq;
 	private int currentIndex = 0;
 	private Boolean noneMasteryTime = false;
@@ -21,6 +22,7 @@ public class MasteryCore {
 	private int tmpIndex = 0;
 	private Boolean isDialog = false;
 	private Boolean isNeedHelp = false;
+	private Boolean isChangeTask = false;
 
 	public static MasteryCore getInstance() {
 		if (instance == null) {
@@ -31,13 +33,13 @@ public class MasteryCore {
 	}
 
 	public MasteryCore(String masteryString) {
-
 		JSONParser parser = new JSONParser();
 		JSONObject tmp = new JSONObject();
 		
 		try {
 			tmp = (JSONObject) parser.parse(masteryString);
 			stuRecord = (JSONObject) tmp.get("stuRecord");
+			seq = (JSONObject) tmp.get("seq");
 
 			if(!tmp.get("MasteryTime").equals("false"))
 				masteryTime = (JSONObject) tmp.get("MasteryTime");
@@ -45,8 +47,8 @@ public class MasteryCore {
 				noneMasteryTime = true;
 			
 			questionSeq = new int[stuRecord.size()][];
-			for(int i = 1; i <= ((JSONObject)tmp.get("seq")).size(); i++ ){
-				String[] _tmp = ((JSONObject)tmp.get("seq")).get(String.valueOf(i)).toString().trim().replaceAll(" ", "").split(",");
+			for(int i = 1; i <= seq.size(); i++ ){
+				String[] _tmp = seq.get(String.valueOf(i)).toString().trim().replaceAll(" ", "").split(",");
 				questionSeq[i - 1] = new int[_tmp.length];
 				for(int j = 0; j < _tmp.length; j++){
 					questionSeq[i - 1][j] = Integer.valueOf(_tmp[j]);
@@ -69,11 +71,11 @@ public class MasteryCore {
 					currentGroup = i - 1;
 					break;
 				} else {
-					// upload new masterySet & add currentIndex
+					
 					currentIndex = questionSeq[i - 1][0];
 					((JSONObject) stuRecord.get(String.valueOf(i))).put("currentIndex", String.valueOf(currentIndex));
 					currentGroup = i - 1;
-					/////// upload ???????
+					
 					break;
 				}
 			}
@@ -92,7 +94,6 @@ public class MasteryCore {
 		if(!noneMasteryTime){
 			compareTime = Integer.valueOf(masteryTime.get(String.valueOf(taskId)).toString());
 		}
-		
 		
 		if((int)(timeUsed/1000) <= compareTime){
 			if(status.equalsIgnoreCase("test_ok")){
@@ -199,6 +200,22 @@ public class MasteryCore {
 		return isDialog;
 	}
 	
+	public JSONObject getSeq(){
+		return seq;
+	}
+	
+	public JSONObject getStuRecord(){
+		return stuRecord;
+	}
+	
+	public void setIsChangeTask(Boolean value){
+		isChangeTask = value;
+	}
+	
+	public Boolean getIsChangeTask(){
+		return isChangeTask;
+	}
+	
 	public void setCurrentIndex(){
 		((JSONObject)stuRecord.get(String.valueOf(currentGroup + 1))).put("currentIndex", String.valueOf(tmpIndex));
 	}
@@ -207,12 +224,10 @@ public class MasteryCore {
 		((JSONObject)stuRecord.get(String.valueOf(currentGroup + 1))).put(String.valueOf(currentIndex), "true");
 		((JSONObject)stuRecord.get(String.valueOf(currentGroup + 1))).put("isPass", "true");
 		currentGroup++;
-		// upload masterySet
 	}
 	
 	private void changeNextTask(int index){
 		((JSONObject)stuRecord.get(String.valueOf(currentGroup + 1))).put(String.valueOf(currentIndex), "true");
 		((JSONObject)stuRecord.get(String.valueOf(currentGroup + 1))).put("currentIndex", String.valueOf(index));
-		// upload masterySet
 	}
 }
