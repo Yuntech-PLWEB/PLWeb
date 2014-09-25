@@ -110,7 +110,6 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			modes = new String[] { env.getLessonMode() };
 		}
 
-		
 		tb1 = new JToolBar();
 		tb1.setFloatable(false);
 		if(env.getLessonMode().equals("student") && (env.getActiveProject().getPropertyEx("hasMastery") != null && env.getActiveProject().getPropertyEx("hasMastery").equals("true"))){
@@ -545,7 +544,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 			console.print("\nDESCRIPTION： " + "match\n", Color.green);
 		else{
 			console.print("\nDESCRIPTION： " + "Mismatch\n", Color.red);
-			if(!errorHint.equals("") || !errorHint.equals(null))
+			if(!errorHint.equals("") && !errorHint.equals(null))
 				console.print("Hint：" + errorHint + "\n", Color.blue);
 		}		
 		console.print("---------------------------\n");		

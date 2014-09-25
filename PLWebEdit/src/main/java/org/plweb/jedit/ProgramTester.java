@@ -198,7 +198,7 @@ public class ProgramTester {
 					sb.append(line);
 					sb.append("\n");
 				} else if(line.trim().startsWith("%")){
-					eb.append(line);
+					eb.append(line.trim().substring(1));
 					eb.append("\n");
 				}
 				line = br.readLine();
