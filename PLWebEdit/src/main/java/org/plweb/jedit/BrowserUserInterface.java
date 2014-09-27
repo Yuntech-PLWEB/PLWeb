@@ -11,11 +11,16 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
+import javax.swing.JScrollPane;
+import javax.swing.border.TitledBorder;
 
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
+
+import javax.swing.JEditorPane;
+import javax.swing.text.Document;
 
 public class BrowserUserInterface extends JPanel {
 
@@ -50,7 +55,7 @@ public class BrowserUserInterface extends JPanel {
 	}
 	
 	private JComponent createBrowser() {
-		JWebBrowser browser = new JWebBrowser();
+		/*JWebBrowser browser = new JWebBrowser();
 		browser.setBarsVisible(false);
 		env.setActiveBrowser(browser);
 
@@ -87,7 +92,16 @@ public class BrowserUserInterface extends JPanel {
 		//----lintt 20140210
 				
 		//browser.setHTMLContent("<html><head><meta http-equiv=content-type content=\"text/html; charset=UTF-8\"></head><body></body></html>");
-		return browser;
+		return browser;*/
+		JEditorPane editorPane = new JEditorPane();
+		editorPane.setEditable(false);
+		env.setActiveBrowser(editorPane);
+		//editorPane.setBorder(BorderFactory.createTitledBorder("HTML Viewer"));
+		
+		JScrollPane scroll = new JScrollPane(editorPane);
+		scroll.setBorder(new TitledBorder("HTML Viewer"));
+		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		return scroll;
 	}
 
 	private JComponent createDisplayBox() {

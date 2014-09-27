@@ -50,11 +50,12 @@ import org.plweb.suite.common.xml.XTask;
 import chrriis.dj.nativeswing.swtimpl.components.HTMLEditorSaveEvent;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 
-
-
 import javax.swing.SwingUtilities;
 import chrriis.dj.nativeswing.swtimpl.NativeComponent;
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
+
+import javax.swing.JEditorPane;
+import javax.swing.text.Document;
 
 public class CompilerUserInterface extends JPanel implements ActionListener {
 
@@ -900,7 +901,7 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 
 		String fileHtml = project.getTaskPropertyEx(task, "file.html");
 
-		if (fileHtml != null) {
+		/*if (fileHtml != null) {
 
 			JWebBrowser browser = env.getActiveBrowser();
 			String url = null;
@@ -917,7 +918,30 @@ public class CompilerUserInterface extends JPanel implements ActionListener {
 				browser.navigate(url);
 				
 			}
+		}*/
+		if (fileHtml != null) {
+
+			JEditorPane browser = env.getActiveBrowser();
+			String url = null;
+
+			if (isValidHttpURL(fileHtml)) {
+				url = fileHtml.trim();
+			} else {
+				url = new File(rootPath, fileHtml).toURI().toString();
+			}
+
+			if (url != null) {
+				try {
+					Document doc = browser.getDocument();
+					doc.putProperty(Document.StreamDescriptionProperty, null);
+					browser.setPage(url);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
 		}
+		
 	}
 
 	/**

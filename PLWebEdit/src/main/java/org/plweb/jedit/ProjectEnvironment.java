@@ -11,6 +11,8 @@ import org.plweb.suite.common.xml.XmlFactory;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import org.apache.commons.codec.binary.Base64;
 
+import javax.swing.JEditorPane;
+
 public class ProjectEnvironment {
 	private String diskRoot = System.getProperty("javaws.plweb.diskroot");
 	private String lessonPath = System.getProperty("javaws.plweb.lessonpath");
@@ -37,7 +39,8 @@ public class ProjectEnvironment {
 	private XProject activeProject;
 	private XTask activeTask = null;
 	private MessageConsoleInterface activeConsole;
-	private JWebBrowser activeBrowser;
+	//private JWebBrowser activeBrowser;
+	private JEditorPane activeBrowser;
 	private JMultiTextViewer activeViewer;
 
 	private static ProjectEnvironment instance = null;
@@ -152,11 +155,17 @@ public class ProjectEnvironment {
 		this.activeConsole = activeConsole;
 	}
 
-	public JWebBrowser getActiveBrowser() {
+	/*public JWebBrowser getActiveBrowser() {
+		return activeBrowser;
+	}*/
+	public JEditorPane getActiveBrowser() {
 		return activeBrowser;
 	}
 
-	public void setActiveBrowser(JWebBrowser activeBrowser) {
+	/*public void setActiveBrowser(JWebBrowser activeBrowser) {
+		this.activeBrowser = activeBrowser;
+	}*/
+	public void setActiveBrowser(JEditorPane activeBrowser) {
 		this.activeBrowser = activeBrowser;
 	}
 
