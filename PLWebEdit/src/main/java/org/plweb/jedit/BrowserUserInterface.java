@@ -21,6 +21,8 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 
 import javax.swing.JEditorPane;
 import javax.swing.text.Document;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 public class BrowserUserInterface extends JPanel {
 
@@ -97,6 +99,20 @@ public class BrowserUserInterface extends JPanel {
 		editorPane.setEditable(false);
 		env.setActiveBrowser(editorPane);
 		//editorPane.setBorder(BorderFactory.createTitledBorder("HTML Viewer"));
+		
+		editorPane.addHyperlinkListener(new HyperlinkListener(){
+			public void hyperlinkUpdate(HyperlinkEvent e) {
+				if(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+					if(Desktop.isDesktopSupported()){
+						try {
+							Desktop.getDesktop().browse(e.getURL().toURI());
+						} catch (Exception _e){
+						}
+					}
+				}
+			}
+		});		
+		
 		
 		JScrollPane scroll = new JScrollPane(editorPane);
 		scroll.setBorder(new TitledBorder("HTML Viewer"));
